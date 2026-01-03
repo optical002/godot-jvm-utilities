@@ -19,14 +19,12 @@ ThisBuild / developers := List(
 )
 ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 ThisBuild / homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
-ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
-ThisBuild / sonatypeRepository     := "https://central.sonatype.com/api/v1/publisher"
 ThisBuild / versionScheme          := Some("early-semver")
 
 ThisBuild / credentials ++= Seq(
   Credentials(
     "Sonatype Nexus Repository Manager",
-    "central.sonatype.com",
+    "s01.oss.sonatype.org",
     sys.env.getOrElse("SONATYPE_USERNAME", ""),
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
   ),
