@@ -36,8 +36,6 @@ class GodotBuildPlugin extends AutoPlugin {
     jreFileName: String
   )
 
-  private lazy val log = streams.value.log
-  private lazy val jvmDir = baseDirectory.value / "jvm"
   private lazy val godotBootstrapJarFileName = "godot-bootstrap.jar"
   private lazy val mainJarFileName = "main.jar"
   private lazy val platformSettings = {
@@ -140,6 +138,8 @@ class GodotBuildPlugin extends AutoPlugin {
     ),
 
     embedJre := {
+      val log = streams.value.log
+      val jvmDir = baseDirectory.value / "jvm"
       val jreDir = jvmDir / platformSettings.jreFileName
 
       IO.delete(jvmDir)
@@ -175,6 +175,9 @@ class GodotBuildPlugin extends AutoPlugin {
     },
 
     godotBuild := {
+      val log = streams.value.log
+      val jvmDir = baseDirectory.value / "jvm"
+
       log.info("[godotBuild] Building...")
 
       compileClassGraphEntry.value
@@ -202,6 +205,7 @@ class GodotBuildPlugin extends AutoPlugin {
     },
 
     dev := {
+      val jvmDir = baseDirectory.value / "jvm"
       val mainJar = jvmDir / mainJarFileName
       if (mainJar.exists()) {
         IO.move(mainJar, packageMainJar.value)
@@ -212,6 +216,7 @@ class GodotBuildPlugin extends AutoPlugin {
     },
 
     generateClassGraphEntry := {
+      val log = streams.value.log
       val generatedDir = target.value / "generated" / "classgraph"
 
       // Clean the entire generation directory to force fresh generation
@@ -298,6 +303,7 @@ object ClassGraphRunner {
     },
 
     compileClassGraphEntry := {
+      val log = streams.value.log
       val generatedDir = generateClassGraphEntry.value
       val entryClassesDir = target.value / "entry-classes"
       IO.createDirectory(entryClassesDir)
@@ -343,6 +349,7 @@ object ClassGraphRunner {
     },
 
     packageBootstrapJar := {
+      val log = streams.value.log
       val destJar = target.value / "godot-bootstrap.jar"
       log.info("[Godot] Packaging bootstrap JAR...")
 
@@ -459,6 +466,7 @@ object ClassGraphRunner {
     },
 
     generateGdIgnoreFiles := {
+      val jvmDir = baseDirectory.value / "jvm"
       Vector(
         baseDirectory.value / "target",
         baseDirectory.value / "modules",
