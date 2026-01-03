@@ -1,13 +1,13 @@
-organization         := "io.github.optical002"
-organizationName     := "optical002"
-organizationHomepage := Some(url("https://github.com/optical002"))
-scmInfo := Some(
+ThisBuild / organization         := "io.github.optical002"
+ThisBuild / organizationName     := "optical002"
+ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
+ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/optical002/godot-jvm-utilities"),     // Browse URL
     "scm:git@github.com:optical002/godot-jvm-utilities.git"       // Connection string
   )
 )
-developers := List(
+ThisBuild / developers := List(
   Developer(
     id    = "optical002",
     name  = "optical002",
@@ -15,14 +15,15 @@ developers := List(
     url   = url("https://github.com/optical002")
   )
 )
-licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
-homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
-sonatypeCredentialHost := "central.sonatype.com"
-sonatypeRepository     := "https://central.sonatype.com/api/v1/publisher"
-publishMavenStyle      := true
-publishTo              := sonatypePublishToBundle.value
+ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+ThisBuild / homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
+ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
+ThisBuild / sonatypeRepository     := "https://central.sonatype.com/api/v1/publisher"
+ThisBuild / publishMavenStyle      := true
+ThisBuild / publishTo              := sonatypePublishToBundle.value
+ThisBuild / versionScheme          := Some("early-semver")
 
-credentials += Credentials(
+ThisBuild / credentials += Credentials(
   "Sonatype Nexus Repository Manager",
   "central.sonatype.com",
   sys.env.getOrElse("SONATYPE_USERNAME", ""),
@@ -30,7 +31,7 @@ credentials += Credentials(
 )
 
 // PGP signing configuration
-pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
+ThisBuild / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 // Required for sbt plugins publishing to Maven Central
 ThisBuild / sbtPluginPublishLegacyMavenStyle := false
