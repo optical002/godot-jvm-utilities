@@ -1,0 +1,54 @@
+name: Publish to Maven Central
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [sbtGodotBuild]  # Add more projects here as you create them
+      fail-fast: false  # Don't stop other jobs if one fails
+      max-parallel: 3   # Limit concurrent publishes
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'sbt'
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
+
+      - name: Publish ${{ matrix.project }}
+        run: |
+          set +e
+          sbt "${{ matrix.project }}/publishSigned" "${{ matrix.project }}/sonatypeBundleRelease" 2>&1 | tee publish.log
+          EXIT_CODE=$?
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            if grep -q "already exists\|already published\|400 Bad Request" publish.log; then
+              echo "✅ Version already published - skipping ${{ matrix.project }}"
+              exit 0
+            else
+              echo "❌ Failed to publish ${{ matrix.project }}"
+              cat publish.log
+              exit 1
+            fi
+          fi
+
+          echo "✅ Successfully published ${{ matrix.project }}"
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

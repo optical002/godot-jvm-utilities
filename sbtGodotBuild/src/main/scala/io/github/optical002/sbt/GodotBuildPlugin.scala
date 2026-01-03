@@ -68,7 +68,6 @@ class GodotBuildPlugin extends AutoPlugin {
         if (!bundledRepo.exists()) {
           IO.createDirectory(bundledRepo)
 
-          val classLoader = getClass.getClassLoader
           val pluginJar = new File(getClass.getProtectionDomain.getCodeSource.getLocation.toURI)
 
           if (pluginJar.isFile && pluginJar.getName.endsWith(".jar")) {
@@ -109,6 +108,10 @@ class GodotBuildPlugin extends AutoPlugin {
     resolvers += "Bundled Maven Repository" at s"file://${(ThisBuild / target).value}/bundled-m2-repo",
 
     jreVersion := "17.0.13+11",
+
+    // Leave this as private to plugin only for now, later on after moving to official plugins will need to remove
+    // prebuilt jars and coping them and resolver, after that, make this public, so users can change it, independent of
+    // the plugin
     godotKotlinVersion := "0.14.3-4.5.1-92ac75f-SNAPSHOT",
     kotlinVersion := "1.9.0",
     kotlinCompilerVersion := "2.1.10",
