@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.utopia-rise</groupId>
+  <artifactId>com.utopia-rise.godot-kotlin-jvm.gradle.plugin</artifactId>
+  <version>0.14.3-4.5.1-92ac75f-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Gradle plugin for godot-kotlin-jvm</name>
+  <description>Automatically setup of godot kotlin jvm specific project configurations</description>
+  <url>https://github.com/utopia-rise/godot-kotlin-jvm.git</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/utopia-rise/godot-kotlin-jvm/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>core</id>
+      <name>Ranie Jade Ramiso</name>
+      <email>raniejaderamiso@gmail.com</email>
+      <url>https://github.com/raniejade</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Pierre-Thomas Meisels</name>
+      <email>meisels27@yahoo.fr</email>
+      <url>https://github.com/piiertho</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Cedric Hippmann</name>
+      <email>cedric.hippmann@hotmail.com</email>
+      <url>https://github.com/chippmann</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Tristan Grespinet</name>
+      <email>ced.naru@gmail.com</email>
+      <url>https://github.com/CedNaru</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/utopia-rise/godot-kotlin-jvm</connection>
+    <developerConnection>scm:git:github.com:utopia-rise/godot-kotlin-jvm.git</developerConnection>
+    <tag>master</tag>
+    <url>https://github.com/utopia-rise/godot-kotlin-jvm</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>com.utopia-rise</groupId>
+      <artifactId>godot-gradle-plugin</artifactId>
+      <version>0.14.3-4.5.1-92ac75f-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</project>

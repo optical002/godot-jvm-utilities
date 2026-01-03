@@ -1,0 +1,164 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.utopia-rise",
+    "module": "godot-class-graph-symbol-processor",
+    "version": "0.13.0-4.4.1-afac9a3-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.13"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.36"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 61812,
+          "sha512": "54fa812d09e302fb8aa290f7653976c5df72f2ffa874d93ad3a28032177214d8c3ee3ec97d0e1abe15c8359cf0ec0f77f263ffeb1ec0ae8b20d0db1ee5e0bfb4",
+          "sha256": "68b5a0b46cd7d6a6af2284ad23824f56802e30f6e8c598042aeff148073be135",
+          "sha1": "9e1b6c35e86dd5bc97e03f619f2b4d72e408a975",
+          "md5": "56c57cc214e23d1730c5718e5660e638"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.utopia-rise",
+          "module": "tools-common",
+          "version": {
+            "requires": "0.13.0-4.4.1-afac9a3-SNAPSHOT"
+          }
+        },
+        {
+          "group": "com.utopia-rise",
+          "module": "godot-core-library-debug",
+          "version": {
+            "requires": "0.13.0-4.4.1-afac9a3-SNAPSHOT"
+          }
+        },
+        {
+          "group": "com.utopia-rise",
+          "module": "godot-entry-generator",
+          "version": {
+            "requires": "0.13.0-4.4.1-afac9a3-SNAPSHOT"
+          }
+        },
+        {
+          "group": "io.github.classgraph",
+          "module": "classgraph",
+          "version": {
+            "requires": "4.8.179"
+          }
+        },
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.36"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 61812,
+          "sha512": "54fa812d09e302fb8aa290f7653976c5df72f2ffa874d93ad3a28032177214d8c3ee3ec97d0e1abe15c8359cf0ec0f77f263ffeb1ec0ae8b20d0db1ee5e0bfb4",
+          "sha256": "68b5a0b46cd7d6a6af2284ad23824f56802e30f6e8c598042aeff148073be135",
+          "sha1": "9e1b6c35e86dd5bc97e03f619f2b4d72e408a975",
+          "md5": "56c57cc214e23d1730c5718e5660e638"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "url": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "size": 16021,
+          "sha512": "1bbe4884efb8f2817f8c7f19107f52c8e9ac09151c26c44427bd421df94a33b4d28ae67f529a3ab3f8315b73a14259d87cecda247b2ddfd600704836674114bf",
+          "sha256": "46351bb1927f76e7c5833537cc45b685ba3c5bd2f0036f789c7f1bc23b10d34d",
+          "sha1": "a08f64fb024fb4b640bb72e9385746789166a85a",
+          "md5": "f4b7fd628cb0acb2fc3209613f9ba85a"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "url": "godot-class-graph-symbol-processor-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "size": 261,
+          "sha512": "03c41f7c4900ae3fb06f4d03720f7f1d233e8e675d4ffad1c3b41d562819660742b05d630592b1aae3949869b31ba498c4614f9f627a32c1f6fb5685517782d8",
+          "sha256": "93eb86927f009e8ce123a32b0bd41c99e70e11a9a93cb1379c41f2d4c8f1a5c7",
+          "sha1": "f9c5c208f7db5fd9d3aeec36be6d812dde6f90bc",
+          "md5": "12b61d6882cb90117f7a1d66adac9a7e"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.utopia-rise",
+    "module": "godot-build-props",
+    "version": "0.13.0-4.4.1-afac9a3-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.13"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 3155,
+          "sha512": "c5aeb393aea33056a6488c6fe6247754ba28093104be2ed7437a4d5b42e03f750cb20f5dea9fcbcf4e6d34e7d87277c922abb708443e0f158996bfd49deb7b83",
+          "sha256": "c7c6c78fe5654441d097e59e22b20d1ced2aa3fe59be24609de07635b2b2da9b",
+          "sha1": "2e4a37e347f9a895dc0682002781e8aa3b9e3eaf",
+          "md5": "3c977452faaf5b2c7de82f7ddf4c0baf"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 3155,
+          "sha512": "c5aeb393aea33056a6488c6fe6247754ba28093104be2ed7437a4d5b42e03f750cb20f5dea9fcbcf4e6d34e7d87277c922abb708443e0f158996bfd49deb7b83",
+          "sha256": "c7c6c78fe5654441d097e59e22b20d1ced2aa3fe59be24609de07635b2b2da9b",
+          "sha1": "2e4a37e347f9a895dc0682002781e8aa3b9e3eaf",
+          "md5": "3c977452faaf5b2c7de82f7ddf4c0baf"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "url": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "size": 1137,
+          "sha512": "eafcea45eb71b842e0c1996305d1ba881905b5ed1d9076f6fbf910a8a743b909e72ef08895e55a78117f7bb1963cc3d6f3533ac4751608d537f57229c924d0a1",
+          "sha256": "b77d2337375215ca4e43e5559a432b74468a012ad64d3b62bb3e55d6fbfcb0ee",
+          "sha1": "590fa78a2740eaf8832e680ebdf647b06d62aee7",
+          "md5": "71744e7bde638656f0a5de4d61e92311"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "url": "godot-build-props-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "size": 261,
+          "sha512": "03c41f7c4900ae3fb06f4d03720f7f1d233e8e675d4ffad1c3b41d562819660742b05d630592b1aae3949869b31ba498c4614f9f627a32c1f6fb5685517782d8",
+          "sha256": "93eb86927f009e8ce123a32b0bd41c99e70e11a9a93cb1379c41f2d4c8f1a5c7",
+          "sha1": "f9c5c208f7db5fd9d3aeec36be6d812dde6f90bc",
+          "md5": "12b61d6882cb90117f7a1d66adac9a7e"
+        }
+      ]
+    }
+  ]
+}

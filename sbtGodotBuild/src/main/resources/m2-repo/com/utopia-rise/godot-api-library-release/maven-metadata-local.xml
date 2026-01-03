@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.utopia-rise</groupId>
+  <artifactId>godot-api-library-release</artifactId>
+  <versioning>
+    <latest>0.13.0-4.4.1-afac9a3-SNAPSHOT</latest>
+    <versions>
+      <version>0.13.0-4.4.1-afac9a3-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20250920215555</lastUpdated>
+  </versioning>
+</metadata>

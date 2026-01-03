@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- This module was also published with a richer model, Gradle metadata,  -->
+  <!-- which should be used instead. Do not delete the following line which  -->
+  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
+  <!-- that they should prefer consuming it instead. -->
+  <!-- do_not_remove: published-with-gradle-metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.utopia-rise</groupId>
+  <artifactId>godot-build-props</artifactId>
+  <version>0.13.0-4.4.1-afac9a3-SNAPSHOT</version>
+  <name>godot-build-props</name>
+  <description>Properties for Godot Kotlin building.</description>
+  <url>https://github.com/utopia-rise/godot-kotlin-jvm.git</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/utopia-rise/godot-kotlin-jvm/blob/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>core</id>
+      <name>Ranie Jade Ramiso</name>
+      <email>raniejaderamiso@gmail.com</email>
+      <url>https://github.com/raniejade</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Pierre-Thomas Meisels</name>
+      <email>meisels27@yahoo.fr</email>
+      <url>https://github.com/piiertho</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Cedric Hippmann</name>
+      <email>cedric.hippmann@hotmail.com</email>
+      <url>https://github.com/chippmann</url>
+    </developer>
+    <developer>
+      <id>core</id>
+      <name>Tristan Grespinet</name>
+      <email>ced.naru@gmail.com</email>
+      <url>https://github.com/CedNaru</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/utopia-rise/godot-kotlin-jvm</connection>
+    <developerConnection>scm:git:github.com:utopia-rise/godot-kotlin-jvm.git</developerConnection>
+    <tag>master</tag>
+    <url>https://github.com/utopia-rise/godot-kotlin-jvm</url>
+  </scm>
+  <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>2.1.10</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,136 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.utopia-rise",
+    "module": "godot-internal-library-debug",
+    "version": "0.14.3-4.5.1-92ac75f-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.13"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.utopia-rise",
+          "module": "common",
+          "version": {
+            "requires": "0.14.3-4.5.1-92ac75f-SNAPSHOT"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT.jar",
+          "url": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT.jar",
+          "size": 31558,
+          "sha512": "45b91069e0b0fc252db0a908d8848a9984924308c531d10679bbd899159d85d32715f3ac9660113c879b8adf473247848453ae2d2d5470699d39f7fff4f5fb4e",
+          "sha256": "5fdcd5d82f11809f62d00eda33e4a2bb6c4afed56baa2e4969413672b27e217f",
+          "sha1": "4cbb0a8e8390c2602c1ec8fc7784683eaed056a3",
+          "md5": "be72754692fc99eeb93b0f186af1d679"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.utopia-rise",
+          "module": "common",
+          "version": {
+            "requires": "0.14.3-4.5.1-92ac75f-SNAPSHOT"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT.jar",
+          "url": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT.jar",
+          "size": 31558,
+          "sha512": "45b91069e0b0fc252db0a908d8848a9984924308c531d10679bbd899159d85d32715f3ac9660113c879b8adf473247848453ae2d2d5470699d39f7fff4f5fb4e",
+          "sha256": "5fdcd5d82f11809f62d00eda33e4a2bb6c4afed56baa2e4969413672b27e217f",
+          "sha1": "4cbb0a8e8390c2602c1ec8fc7784683eaed056a3",
+          "md5": "be72754692fc99eeb93b0f186af1d679"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT-sources.jar",
+          "url": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT-sources.jar",
+          "size": 10152,
+          "sha512": "ff42e1974d076895a91e39707f7ab466f3bc4d69d5410b208565d8efa0f8ec2b7d0f5fc5ada80fb2db142f48f0cce21d3fad7a0896d4b9d319edc790c2fc7d68",
+          "sha256": "b6ae87b627053180b3db6c94878deeabb8d52a9ba35d7ace85e43c0946364045",
+          "sha1": "05f289eafabd25883d589fe8d1fae7ee2190a97b",
+          "md5": "3b5bd8388fa7edae231f17d9326ffedd"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT-javadoc.jar",
+          "url": "godot-internal-library-debug-0.14.3-4.5.1-92ac75f-SNAPSHOT-javadoc.jar",
+          "size": 261,
+          "sha512": "d2d5111cff05f4af2cb1f346f0072499da3f5fc30196aa948e9921f3feecf4718e0216edad0d796f2b0c45780ce06025b9561fde84de13ea14c2ee59ca5631b5",
+          "sha256": "90cd715274b6eecc78a9d49648b0c8caa16830a1c6b1982a93d3ce9a907473f2",
+          "sha1": "5935f0c88744937da03cd8f51629f0c0e6d6c063",
+          "md5": "d590f0412bb2f21f103e75c1aff5e4e6"
+        }
+      ]
+    }
+  ]
+}

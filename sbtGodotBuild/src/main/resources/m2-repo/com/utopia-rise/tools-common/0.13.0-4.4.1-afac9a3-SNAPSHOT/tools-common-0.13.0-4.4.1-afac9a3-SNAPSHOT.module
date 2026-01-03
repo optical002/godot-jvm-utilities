@@ -1,0 +1,143 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.utopia-rise",
+    "module": "tools-common",
+    "version": "0.13.0-4.4.1-afac9a3-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.13"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.utopia-rise",
+          "module": "common",
+          "version": {
+            "requires": "0.13.0-4.4.1-afac9a3-SNAPSHOT"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 20665,
+          "sha512": "4a1cd7d425af857f7f16d3d0029861f75a5dacfb687fe9a40f98cd5654de7723c229c18e8bf51cf826b3376633be79f5651a5e76dc4fa70c98867685cc21a72a",
+          "sha256": "1b4185ed2a7a70cde34be4eda67c52aa5b5b9b290ed2616e62da4887202adad0",
+          "sha1": "df0cf3f78e27e374b3bcfcaf5178f75e842d9b08",
+          "md5": "83abd04901b950d94c1f69d613035a27"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "com.squareup",
+          "module": "kotlinpoet",
+          "version": {
+            "requires": "1.12.0"
+          }
+        },
+        {
+          "group": "com.utopia-rise",
+          "module": "common",
+          "version": {
+            "requires": "0.13.0-4.4.1-afac9a3-SNAPSHOT"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.10"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "url": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT.jar",
+          "size": 20665,
+          "sha512": "4a1cd7d425af857f7f16d3d0029861f75a5dacfb687fe9a40f98cd5654de7723c229c18e8bf51cf826b3376633be79f5651a5e76dc4fa70c98867685cc21a72a",
+          "sha256": "1b4185ed2a7a70cde34be4eda67c52aa5b5b9b290ed2616e62da4887202adad0",
+          "sha1": "df0cf3f78e27e374b3bcfcaf5178f75e842d9b08",
+          "md5": "83abd04901b950d94c1f69d613035a27"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "url": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT-sources.jar",
+          "size": 5286,
+          "sha512": "617291614ed55855d05e6d42b9d3d95e09f50a5e589d7d71b04115c8f90da8709c36445eac8c7782c8abc5ff25c916ba8b11d39f7eac86926713e0abe667c2b3",
+          "sha256": "281ef44bd18ac0fb1251a3f1abbf4ff892d5ed0e7e9a02f313619845722f7b5d",
+          "sha1": "6d64c63b6a4c8e6167ff90680d28efb0a0a8e21b",
+          "md5": "7caba524b5f0f6f88bc062f4e47567a9"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "url": "tools-common-0.13.0-4.4.1-afac9a3-SNAPSHOT-javadoc.jar",
+          "size": 261,
+          "sha512": "1424aa356fdbf0242919d2d8fa09a09c66b8a5542d483bb9568569444cd5d0c34b0e56e39b0a3a9369cd810d6876d2edf08bc5259460840a4f6322bdeb1eb6aa",
+          "sha256": "0e0e6f3942fdad27a30e9159bd123e3384ab9f8983e18328a9cdbdaf8a5cfc58",
+          "sha1": "abe7c3a52778fe142709c0db9ddd5115fea90bc2",
+          "md5": "0b283f22bc837469aaab80443ea1254f"
+        }
+      ]
+    }
+  ]
+}

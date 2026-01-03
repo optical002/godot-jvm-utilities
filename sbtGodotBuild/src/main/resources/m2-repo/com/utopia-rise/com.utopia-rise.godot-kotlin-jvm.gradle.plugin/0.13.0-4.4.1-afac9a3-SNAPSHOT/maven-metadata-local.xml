@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.utopia-rise</groupId>
+  <artifactId>com.utopia-rise.godot-kotlin-jvm.gradle.plugin</artifactId>
+  <versioning>
+    <lastUpdated>20250920220803</lastUpdated>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>0.13.0-4.4.1-afac9a3-SNAPSHOT</value>
+        <updated>20250920220803</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+  <version>0.13.0-4.4.1-afac9a3-SNAPSHOT</version>
+</metadata>
