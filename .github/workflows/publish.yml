@@ -59,7 +59,7 @@ jobs:
       - name: Bundle Release
         run: |
           set +e
-          sbt "sonatypeBundleRelease" 2>&1 | tee publish.log
+          sbt "sonaRelease" 2>&1 | tee publish.log
           EXIT_CODE=${PIPESTATUS[0]}
 
           if [ $EXIT_CODE -ne 0 ]; then

@@ -1,5 +1,3 @@
-import xerial.sbt.Sonatype.sonatype01
-
 ThisBuild / organization         := "io.github.optical002"
 ThisBuild / organizationName     := "optical002"
 ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
@@ -17,14 +15,14 @@ ThisBuild / developers := List(
     url   = url("https://github.com/optical002")
   )
 )
+ThisBuild / description            := "Utility packages/plugins for game development with godot."
 ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 ThisBuild / homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
-ThisBuild / versionScheme          := Some("early-semver")
 
 ThisBuild / credentials ++= Seq(
   Credentials(
     "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
+    "central.sonatype.com",
     sys.env.getOrElse("SONATYPE_USERNAME", ""),
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
   ),
@@ -32,9 +30,6 @@ ThisBuild / credentials ++= Seq(
 
 // PGP signing configuration
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
-
-// Required for sbt plugins publishing to Maven Central
-ThisBuild / sonatypeCredentialHost := sonatype01
 
 val libraryScalaVersion = "3.7.4"
 val sbtPluginScalaVersion = "2.12.21"
@@ -49,7 +44,11 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     version := "0.1.0",
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
-    publishTo := sonatypePublishToBundle.value,
     publishMavenStyle := true,
     sbtPluginPublishLegacyMavenStyle := false,
+    publishTo := {
+      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+      if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+      else localStaging.value
+    },
   )
