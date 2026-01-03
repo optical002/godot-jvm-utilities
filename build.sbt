@@ -1,3 +1,5 @@
+import xerial.sbt.Sonatype.sonatype01
+
 ThisBuild / organization         := "io.github.optical002"
 ThisBuild / organizationName     := "optical002"
 ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
@@ -35,9 +37,14 @@ pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 // Required for sbt plugins publishing to Maven Central
 ThisBuild / sbtPluginPublishLegacyMavenStyle := false
+ThisBuild / sonatypeCredentialHost := sonatype01
 
 val libraryScalaVersion = "3.7.4"
 val sbtPluginScalaVersion = "2.12.21"
+
+lazy val root = (project in file("."))
+  .settings(publish / skip := true)
+  .aggregate(sbtGodotBuild)
 
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
   .settings(
