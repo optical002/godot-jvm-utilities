@@ -37,17 +37,22 @@ jobs:
         run: |
           set +e
           sbt "${{ matrix.project }}/publishSigned" "${{ matrix.project }}/sonatypeBundleRelease" 2>&1 | tee publish.log
-          EXIT_CODE=$?
+          EXIT_CODE=${PIPESTATUS[0]}
 
           if [ $EXIT_CODE -ne 0 ]; then
-            if grep -q "already exists\|already published\|400 Bad Request" publish.log; then
+            echo "❌ SBT exited with code $EXIT_CODE"
+
+            # Check if it's the "already published" error
+            if grep -qi "already exists\|already published\|version.*already" publish.log; then
               echo "✅ Version already published - skipping ${{ matrix.project }}"
               exit 0
-            else
-              echo "❌ Failed to publish ${{ matrix.project }}"
-              cat publish.log
-              exit 1
             fi
+
+            # Real error - fail
+            echo "❌ Failed to publish ${{ matrix.project }}"
+            echo "=== Error output ==="
+            cat publish.log
+            exit 1
           fi
 
           echo "✅ Successfully published ${{ matrix.project }}"
