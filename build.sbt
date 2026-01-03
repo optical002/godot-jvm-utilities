@@ -28,6 +28,12 @@ ThisBuild / credentials ++= Seq(
   ),
 )
 
+ThisBuild / publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
+
 // PGP signing configuration
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
@@ -46,9 +52,4 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     scalaVersion := sbtPluginScalaVersion,
     publishMavenStyle := true,
     sbtPluginPublishLegacyMavenStyle := false,
-    publishTo := {
-      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-      if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-      else localStaging.value
-    },
   )
