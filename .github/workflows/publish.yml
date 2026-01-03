@@ -36,7 +36,7 @@ jobs:
       - name: Publish ${{ matrix.project }}
         run: |
           set +e
-          sbt "${{ matrix.project }}/publishSigned" "${{ matrix.project }}/sonatypeBundleRelease" 2>&1 | tee publish.log
+          sbt "${{ matrix.project }}/publishSigned" "${{ matrix.project }}/sonatypeBundleRelease" 2>&1
           EXIT_CODE=${PIPESTATUS[0]}
 
           if [ $EXIT_CODE -ne 0 ]; then
@@ -50,8 +50,6 @@ jobs:
 
             # Real error - fail
             echo "❌ Failed to publish ${{ matrix.project }}"
-            echo "=== Error output ==="
-            cat publish.log
             exit 1
           fi
 
