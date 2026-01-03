@@ -24,7 +24,7 @@ ThisBuild / versionScheme          := Some("early-semver")
 ThisBuild / credentials ++= Seq(
   Credentials(
     "Sonatype Nexus Repository Manager",
-    "s01.oss.sonatype.org",
+    "oss.sonatype.org",
     sys.env.getOrElse("SONATYPE_USERNAME", ""),
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
   ),
@@ -34,7 +34,6 @@ ThisBuild / credentials ++= Seq(
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 // Required for sbt plugins publishing to Maven Central
-ThisBuild / sbtPluginPublishLegacyMavenStyle := false
 ThisBuild / sonatypeCredentialHost := sonatype01
 
 val libraryScalaVersion = "3.7.4"
@@ -52,4 +51,5 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     scalaVersion := sbtPluginScalaVersion,
     publishTo := sonatypePublishToBundle.value,
     publishMavenStyle := true,
+    sbtPluginPublishLegacyMavenStyle := false,
   )
