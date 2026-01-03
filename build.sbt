@@ -3,8 +3,8 @@ ThisBuild / organizationName     := "optical002"
 ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
-    url("https://github.com/optical002/godot-jvm-utilities"),     // Browse URL
-    "scm:git@github.com:optical002/godot-jvm-utilities.git"       // Connection string
+    url("https://github.com/optical002/godot-jvm-utilities"),
+    "scm:git@github.com:optical002/godot-jvm-utilities.git"
   )
 )
 ThisBuild / developers := List(
@@ -23,13 +23,16 @@ ThisBuild / versionScheme          := Some("early-semver")
 
 // These can't be ThisBuild because they use .value
 publishMavenStyle := true
-publishTo := sonatypePublishToBundle.value
+ThisBuild / publishTo := sonatypePublishToBundle.value
 
-ThisBuild / credentials += Credentials(
-  "Sonatype Nexus Repository Manager",
-  "central.sonatype.com",
-  sys.env.getOrElse("SONATYPE_USERNAME", ""),
-  sys.env.getOrElse("SONATYPE_PASSWORD", "")
+ThisBuild / credentials ++= Seq(
+  Credentials(
+    "Sonatype Nexus Repository Manager",
+    "central.sonatype.com",
+    sys.env.getOrElse("SONATYPE_USERNAME", ""),
+    sys.env.getOrElse("SONATYPE_PASSWORD", "")
+  ),
+  Credentials(Path.userHome / ".sbt" / "credentials" / "pgp")
 )
 
 // PGP signing configuration
@@ -42,6 +45,7 @@ val libraryScalaVersion = "3.7.4"
 val sbtPluginScalaVersion = "2.12.21"
 
 lazy val root = (project in file("."))
+  .settings(publish / skip := true)
   .aggregate(sbtGodotBuild)
 
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
