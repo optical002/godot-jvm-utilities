@@ -21,10 +21,6 @@ ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
 ThisBuild / sonatypeRepository     := "https://central.sonatype.com/api/v1/publisher"
 ThisBuild / versionScheme          := Some("early-semver")
 
-// These can't be ThisBuild because they use .value
-publishMavenStyle := true
-ThisBuild / publishTo := sonatypePublishToBundle.value
-
 ThisBuild / credentials ++= Seq(
   Credentials(
     "Sonatype Nexus Repository Manager",
@@ -43,14 +39,12 @@ ThisBuild / sbtPluginPublishLegacyMavenStyle := false
 val libraryScalaVersion = "3.7.4"
 val sbtPluginScalaVersion = "2.12.21"
 
-lazy val root = (project in file("."))
-  .settings(publish / skip := true)
-  .aggregate(sbtGodotBuild)
-
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
   .settings(
     name := "sbt-godot-build",
     version := "0.1.0",
     sbtPlugin := true,
-    scalaVersion := sbtPluginScalaVersion
+    scalaVersion := sbtPluginScalaVersion,
+    publishTo := sonatypePublishToBundle.value,
+    publishMavenStyle := true,
   )
