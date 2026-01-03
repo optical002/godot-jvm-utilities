@@ -32,7 +32,6 @@ ThisBuild / credentials ++= Seq(
     sys.env.getOrElse("SONATYPE_USERNAME", ""),
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
   ),
-  Credentials(Path.userHome / ".sbt" / "credentials" / "pgp")
 )
 
 // PGP signing configuration
