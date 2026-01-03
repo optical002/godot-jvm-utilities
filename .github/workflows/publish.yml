@@ -26,6 +26,9 @@ jobs:
           java-version: '17'
           cache: 'sbt'
 
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
       - name: Import GPG key
         run: |
           echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
