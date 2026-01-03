@@ -19,9 +19,11 @@ ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/l
 ThisBuild / homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
 ThisBuild / sonatypeCredentialHost := "central.sonatype.com"
 ThisBuild / sonatypeRepository     := "https://central.sonatype.com/api/v1/publisher"
-ThisBuild / publishMavenStyle      := true
-ThisBuild / publishTo              := sonatypePublishToBundle.value
 ThisBuild / versionScheme          := Some("early-semver")
+
+// These can't be ThisBuild because they use .value
+publishMavenStyle := true
+publishTo := sonatypePublishToBundle.value
 
 ThisBuild / credentials += Credentials(
   "Sonatype Nexus Repository Manager",
@@ -31,7 +33,7 @@ ThisBuild / credentials += Credentials(
 )
 
 // PGP signing configuration
-ThisBuild / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
+pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 // Required for sbt plugins publishing to Maven Central
 ThisBuild / sbtPluginPublishLegacyMavenStyle := false

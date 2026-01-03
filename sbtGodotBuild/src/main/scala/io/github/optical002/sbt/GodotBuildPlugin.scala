@@ -174,7 +174,7 @@ class GodotBuildPlugin extends AutoPlugin {
       ()
     },
 
-    godotBuild := {
+    godotBuild := Def.taskDyn {
       val log = streams.value.log
       val jvmDir = baseDirectory.value / "jvm"
 
@@ -184,36 +184,43 @@ class GodotBuildPlugin extends AutoPlugin {
       val bootstrapJar = packageBootstrapJar.value
       val mainJar = packageMainJar.value
 
-      if (jvmDir.exists()) {
-        // Clean up existing jar's
-        Vector(
-          godotBootstrapJarFileName,
-          mainJarFileName
-        ).foreach { jar =>
-          val jarPath = jvmDir / jar
-          if (jarPath.exists()) IO.delete(jarPath)
+      val setupTask = if (jvmDir.exists()) {
+        Def.task {
+          // Clean up existing jar's
+          Vector(
+            godotBootstrapJarFileName,
+            mainJarFileName
+          ).foreach { jar =>
+            val jarPath = jvmDir / jar
+            if (jarPath.exists()) IO.delete(jarPath)
+          }
         }
       } else {
-        embedJre.value
+        embedJre
       }
 
-      IO.copyFile(bootstrapJar, jvmDir / godotBootstrapJarFileName)
-      IO.copyFile(mainJar, jvmDir / mainJarFileName)
+      Def.task {
+        setupTask.value
+        IO.copyFile(bootstrapJar, jvmDir / godotBootstrapJarFileName)
+        IO.copyFile(mainJar, jvmDir / mainJarFileName)
+        generateGdIgnoreFiles.value
+        ()
+      }
+    }.value,
 
-      generateGdIgnoreFiles.value
-      ()
-    },
-
-    dev := {
+    dev := Def.taskDyn {
       val jvmDir = baseDirectory.value / "jvm"
       val mainJar = jvmDir / mainJarFileName
+
       if (mainJar.exists()) {
-        IO.move(mainJar, packageMainJar.value)
+        Def.task {
+          IO.move(mainJar, packageMainJar.value)
+          ()
+        }
       } else {
-        godotBuild.value
+        godotBuild
       }
-      ()
-    },
+    }.value,
 
     generateClassGraphEntry := {
       val log = streams.value.log
