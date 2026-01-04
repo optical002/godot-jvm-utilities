@@ -5,7 +5,7 @@ import sbt.Keys.*
 
 import scala.sys.process.Process
 
-class GodotBuildPlugin extends AutoPlugin {
+object GodotBuildPlugin extends AutoPlugin {
   override def trigger = noTrigger
 
   object autoImport {
