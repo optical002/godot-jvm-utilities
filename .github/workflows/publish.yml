@@ -13,49 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'sbt'
-
-      - name: Set up SBT
-        uses: sbt/setup-sbt@v1
-
-      - name: Import GPG key
-        run: |
-          echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
-
-      - name: Publish sbt-godot-build
-        run: sbt "sbtGodotBuild/publishSigned"
+      - name: Release
+        run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-
-      - name: Bundle Release
-        run: |
-          set +e
-          sbt "sonaRelease" 2>&1 | tee publish.log
-          EXIT_CODE=${PIPESTATUS[0]}
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ SBT exited with code $EXIT_CODE"
-
-            # Check if it's the "already published" error
-            if grep -qi "already exists\|already published\|version.*already" publish.log; then
-              echo "✅ Version already published - skipping ${{ matrix.project }}"
-              exit 0
-            fi
-
-            # Real error - fail
-            exit 1
-          fi
-
-          echo "✅ Successfully published ${{ matrix.project }}"
-        env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-
