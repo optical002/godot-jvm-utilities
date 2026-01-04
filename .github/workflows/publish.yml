@@ -23,10 +23,29 @@ jobs:
       - name: Set up SBT
         uses: sbt/setup-sbt@v1
 
-      - name: Release
-        run: sbt ci-release
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
+
+      - name: Publish sbt-godot-build
+        run: sbt "sbtGodotBuild/publishSigned"
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
+      - name: Release
+        run: |
+          set +e
+          sbt "sonaRelease" 2>&1 | tee publish.log
+          EXIT_CODE=${PIPESTATUS[0]}
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            # Check if it's the "already published" error
+            if grep -qi "already exists\|already published\|version.*already" publish.log; then
+              exit 0
+            fi
+
+            exit 1
+          fi
+        env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
