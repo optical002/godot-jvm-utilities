@@ -28,7 +28,7 @@ jobs:
           echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
 
       - name: Publish sbt-godot-build
-        run: sbt "sbtGobotBuild/publishSigned"
+        run: sbt "sbtGodotBuild/publishSigned"
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
