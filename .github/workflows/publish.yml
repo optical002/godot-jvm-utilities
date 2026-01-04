@@ -9,12 +9,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: [sbtGodotBuild]  # Add more projects here as you create them
-      fail-fast: false  # Don't stop other jobs if one fails
-      max-parallel: 3   # Limit concurrent publishes
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,24 +27,8 @@ jobs:
         run: |
           echo "${{ secrets.PGP_SECRET }}" | base64 --decode | gpg --import --batch --yes
 
-      - name: Publish ${{ matrix.project }}
-        run: |
-          set +e
-          sbt "${{ matrix.project }}/publishSigned" 2>&1 | tee publish.log
-          EXIT_CODE=${PIPESTATUS[0]}
-
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "❌ SBT exited with code $EXIT_CODE"
-
-            # Check if it's the "already published" error
-            if grep -qi "already exists\|already published\|version.*already" publish.log; then
-              echo "✅ Version already published - skipping ${{ matrix.project }}"
-              exit 0
-            fi
-
-            # Real error - fail
-            exit 1
-          fi
+      - name: Publish sbt-godot-build
+        run: sbt "sbtGobotBuild/publishSigned"
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
