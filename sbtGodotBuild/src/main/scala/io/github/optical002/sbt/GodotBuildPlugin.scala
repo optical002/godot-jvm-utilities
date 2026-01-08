@@ -485,11 +485,8 @@ object ClassGraphRunner {
         baseDirectory.value / "modules",
         baseDirectory.value / "src",
         baseDirectory.value / "jvm",
-      ).filter(_.exists()).foreach { dir =>
-        val gdignore = dir / ".gdignore"
-        if (!gdignore.exists()) {
-          IO.write(gdignore, "")
-        }
+      ).filter(d => !d.exists()).foreach { dir =>
+        IO.write(dir / ".gdignore", "")
       }
     },
   )

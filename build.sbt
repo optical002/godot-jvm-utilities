@@ -47,7 +47,7 @@ lazy val root = (project in file("."))
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
   .settings(
     name := "sbt-godot-build",
-    version := "0.1.2",
+    version := "0.1.3",
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
     publishMavenStyle := true,
