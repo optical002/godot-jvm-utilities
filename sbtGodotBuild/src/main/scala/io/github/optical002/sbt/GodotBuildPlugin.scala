@@ -66,8 +66,8 @@ object GodotBuildPlugin extends AutoPlugin {
       val previous = (onLoad in Global).value
       previous.andThen { state =>
         val extracted = Project.extract(state)
-        val baseDir = extracted.get(baseDirectory)
-        val targetDir = extracted.get(target)
+        val baseDir = extracted.get(LocalRootProject / baseDirectory)
+        val targetDir = extracted.get(LocalRootProject / target)
         val m2Dir = baseDir / ".m2"
 
         if (!m2Dir.exists()) {
@@ -92,7 +92,7 @@ object GodotBuildPlugin extends AutoPlugin {
       }
     },
 
-    resolvers += "Local M2 Repository" at s"file://${baseDirectory.value}/.m2/repository",
+    resolvers += "Local M2 Repository" at s"file://${(LocalRootProject / baseDirectory).value}/.m2/repository",
 
     // Leave this as private to plugin only for now, later on after moving to official plugins will need to remove
     // prebuilt jars and coping them and resolver, after that, make this public, so users can change it, independent of
@@ -126,11 +126,12 @@ object GodotBuildPlugin extends AutoPlugin {
 
     downloadMavenDeps := {
       val log = streams.value.log
-      val m2Dir = baseDirectory.value / ".m2"
+      val rootBaseDir = (LocalRootProject / baseDirectory).value
+      val m2Dir = rootBaseDir / ".m2"
 
       IO.delete(m2Dir)
       IO.createDirectory(m2Dir)
-      val downloadDir = target.value / "download"
+      val downloadDir = (LocalRootProject / target).value / "download"
       IO.createDirectory(downloadDir)
 
       val url = "https://github.com/optical002/godot-jvm-utilities/releases/download/dependencies/m2.zip"
@@ -140,7 +141,7 @@ object GodotBuildPlugin extends AutoPlugin {
       Process(Seq("curl", "-L", "-o", zipFile.getAbsolutePath, url)).!
 
       log.info("[downloadMavenDeps] Extracting Maven dependencies...")
-      Process(Seq("unzip", "-q", zipFile.getAbsolutePath, "-d", baseDirectory.value.getAbsolutePath)).!
+      Process(Seq("unzip", "-q", zipFile.getAbsolutePath, "-d", rootBaseDir.getAbsolutePath)).!
       ()
     },
 
