@@ -6,11 +6,12 @@ import sbt.Keys.*
 import scala.sys.process.Process
 
 object GodotBuildPlugin extends AutoPlugin {
-  override def trigger = noTrigger
+  override def trigger = allRequirements
 
   object autoImport {
     val jreVersion = settingKey[String]("JRE version for godot to use")
 
+    val downloadMavenDeps = taskKey[Unit]("Downloads and extracts Maven dependencies")
     val embedJre = taskKey[Unit]("Re-downloads and embeds JRE")
     val godotBuild = taskKey[Unit]("Performs full build")
     val dev = taskKey[Unit]("Regenerates .jar file for code changes")
@@ -40,72 +41,58 @@ object GodotBuildPlugin extends AutoPlugin {
   private lazy val mainJarFileName = "main.jar"
   private lazy val platformSettings = {
     val osName = System.getProperty("os.name").toLowerCase()
-    val arch = {
-      val osArch = System.getProperty("os.arch").toLowerCase()
-      if (osArch.contains("aarch64") || osArch.contains("arm")) "aarch64"
+    val osArch = System.getProperty("os.arch").toLowerCase()
+    val isArm = osArch.contains("aarch64") || osArch.contains("arm")
+    val arch =
+      if (isArm) "aarch64"
       else "x64"
-    }
+    val jreFileName =
+      if (isArm) "jre-arm64-linux"
+      else "jre-amd64-linux"
 
     osName match {
-      case "linux" => PlatformSettings(platform = "linux", arch = arch, jreExt = "tar.gz", jreFileName = "jre-arm64-linux")
-      case "mac" => PlatformSettings(platform = "mac", arch = arch, jreExt = "tar.gz", jreFileName = "jre-arm64-macos")
-      case "win" => PlatformSettings(platform = "win", arch = arch, jreExt = "zip", jreFileName = "jre-amd64-windows")
+      case "linux" => PlatformSettings(platform = "linux", arch = arch, jreExt = "tar.gz", jreFileName = jreFileName)
+      case "mac" => PlatformSettings(platform = "mac", arch = arch, jreExt = "tar.gz", jreFileName = jreFileName)
+      case "win" => PlatformSettings(platform = "win", arch = arch, jreExt = "zip", jreFileName = jreFileName)
       case _ => throw new Exception(s"Unsupported OS: $osName")
     }
   }
 
   override lazy val projectSettings: Seq[Def.Setting[?]] = Seq(
-    // Extract bundled Maven repo to target directory
+    jreVersion := "17.0.13+11",
+
+    // Download Maven dependencies before resolving if they don't exist
     onLoad in Global := {
       val previous = (onLoad in Global).value
       previous.andThen { state =>
         val extracted = Project.extract(state)
-        val targetDir = extracted.get(ThisBuild / target)
-        val bundledRepo = targetDir / "bundled-m2-repo"
+        val baseDir = extracted.get(baseDirectory)
+        val targetDir = extracted.get(target)
+        val m2Dir = baseDir / ".m2"
 
-        if (!bundledRepo.exists()) {
-          IO.createDirectory(bundledRepo)
+        if (!m2Dir.exists()) {
+          val log = extracted.get(sLog)
+          log.info("[onLoad] .m2 directory not found, downloading Maven dependencies...")
 
-          val pluginJar = new File(getClass.getProtectionDomain.getCodeSource.getLocation.toURI)
+          val downloadDir = targetDir / "download"
+          IO.createDirectory(downloadDir)
 
-          if (pluginJar.isFile && pluginJar.getName.endsWith(".jar")) {
-            // Extract from JAR
-            val jar = new java.util.jar.JarFile(pluginJar)
-            try {
-              val entries = jar.entries()
-              while (entries.hasMoreElements) {
-                val entry = entries.nextElement()
-                val entryName = entry.getName
+          val url = "https://github.com/optical002/godot-jvm-utilities/releases/download/dependencies/m2.zip"
+          val zipFile = downloadDir / "m2.zip"
 
-                if (entryName.startsWith("m2-repo/") && !entry.isDirectory) {
-                  val targetFile = bundledRepo / entryName.stripPrefix("m2-repo/")
-                  IO.createDirectory(targetFile.getParentFile)
+          log.info(s"[onLoad] Downloading from $url")
+          Process(Seq("curl", "-L", "-o", zipFile.getAbsolutePath, url)).!
 
-                  val inputStream = jar.getInputStream(entry)
-                  try {
-                    IO.transfer(inputStream, targetFile)
-                  } finally {
-                    inputStream.close()
-                  }
-                }
-              }
-            } finally {
-              jar.close()
-            }
-          } else {
-            // Development mode - copy from resources directory
-            val resourceDir = pluginJar / "main" / "resources" / "m2-repo"
-            if (resourceDir.exists()) {
-              IO.copyDirectory(resourceDir, bundledRepo)
-            }
-          }
+          log.info("[onLoad] Extracting Maven dependencies...")
+          Process(Seq("unzip", "-q", zipFile.getAbsolutePath, "-d", baseDir.getAbsolutePath)).!
+
+          log.info("[onLoad] Maven dependencies installed successfully")
         }
         state
       }
     },
-    resolvers += "Bundled Maven Repository" at s"file://${(ThisBuild / target).value}/bundled-m2-repo",
 
-    jreVersion := "17.0.13+11",
+    resolvers += "Local M2 Repository" at s"file://${baseDirectory.value}/.m2/repository",
 
     // Leave this as private to plugin only for now, later on after moving to official plugins will need to remove
     // prebuilt jars and coping them and resolver, after that, make this public, so users can change it, independent of
@@ -136,6 +123,26 @@ object GodotBuildPlugin extends AutoPlugin {
       "org.jetbrains.kotlin" % "kotlin-script-runtime" % kotlinCompilerVersion.value % "provided",
       "org.jetbrains.kotlinx" % "kotlinx-coroutines-core-jvm" % "1.10.1" % "provided"
     ),
+
+    downloadMavenDeps := {
+      val log = streams.value.log
+      val m2Dir = baseDirectory.value / ".m2"
+
+      IO.delete(m2Dir)
+      IO.createDirectory(m2Dir)
+      val downloadDir = target.value / "download"
+      IO.createDirectory(downloadDir)
+
+      val url = "https://github.com/optical002/godot-jvm-utilities/releases/download/dependencies/m2.zip"
+      val zipFile = downloadDir / "m2.zip"
+
+      log.info(s"[downloadMavenDeps] Downloading Maven dependencies from $url")
+      Process(Seq("curl", "-L", "-o", zipFile.getAbsolutePath, url)).!
+
+      log.info("[downloadMavenDeps] Extracting Maven dependencies...")
+      Process(Seq("unzip", "-q", zipFile.getAbsolutePath, "-d", baseDirectory.value.getAbsolutePath)).!
+      ()
+    },
 
     embedJre := {
       val log = streams.value.log
@@ -473,12 +480,11 @@ object ClassGraphRunner {
     },
 
     generateGdIgnoreFiles := {
-      val jvmDir = baseDirectory.value / "jvm"
       Vector(
         baseDirectory.value / "target",
         baseDirectory.value / "modules",
         baseDirectory.value / "src",
-        jvmDir,
+        baseDirectory.value / "jvm",
       ).filter(_.exists()).foreach { dir =>
         val gdignore = dir / ".gdignore"
         if (!gdignore.exists()) {
