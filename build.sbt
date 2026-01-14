@@ -1,3 +1,7 @@
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
+import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType, *}
+
 ThisBuild / organization         := "io.github.optical002"
 ThisBuild / organizationName     := "optical002"
 ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
@@ -28,10 +32,7 @@ ThisBuild / credentials ++= Seq(
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
   ),
 )
-
 ThisBuild / publishTo := localStaging.value
-
-// PGP signing configuration
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 val libraryScalaVersion = "3.7.4"
@@ -42,7 +43,11 @@ lazy val root = (project in file("."))
     publish / skip := true,
     version := "0.1.0"
   )
-  .aggregate(sbtGodotBuild)
+  .aggregate(
+    sbtGodotBuild,
+    godotParser.jvm,
+    godotParser.native
+  )
 
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
   .settings(
@@ -53,3 +58,20 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     publishMavenStyle := true,
     sbtPluginPublishLegacyMavenStyle := false,
   )
+
+lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("godotParser"))
+  .settings(
+    name := "godot-parser",
+    version := "0.1.0",
+    scalaVersion := libraryScalaVersion,
+    publishMavenStyle := true,
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % "1.0.0" % Test,
+      "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test
+    )
+  )
+
+lazy val godotParserJVM = godotParser.jvm
+lazy val godotParserNative = godotParser.native

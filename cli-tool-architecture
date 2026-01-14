@@ -1,0 +1,8 @@
+- Godot project parser. (parses single file)
+- Godot CLI (it is empty by design, receives a configuration file, which it reads and runs validations/code-gens from it
+the configuration file can contain an online validator which is a maven like link to validator/generator or a local
+definition somehow) (should be published to releases and have a manual of how to use)
+- Godot Validator Plugin (an api which is required for a plugin to get picked up by cli tool)
+- Godot Generator Plugin (an api which is required for a plugin to get picked up by cli tool)
+- Sbt Godot CLI (an sbt plugin which uses godot CLI automatically, downloads it and setup it, I want to have
+validators/generators setup via .sbt file somehow, should add two tasks to all projects generate/validate)
