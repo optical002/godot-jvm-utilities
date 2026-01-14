@@ -1,24 +1,17 @@
 package io.github.optical002.godot.parser
 
 import io.github.optical002.godot.parser.core.ParseResult
-import io.github.optical002.godot.parser.model.Parsed
+import io.github.optical002.godot.parser.model.{ConfigFile, PackedScene, TextResource}
 import io.github.optical002.godot.parser.parser.VariantParser
-import io.github.optical002.godot.parser.assembler.{SceneAssembler, ResourceAssembler, ConfigAssembler}
+import io.github.optical002.godot.parser.assembler.{ConfigAssembler, ResourceAssembler, SceneAssembler}
 
 object Parser {
-  enum Kind {
-    case TSCN, TRES, Config
-  }
-
-  def parse(content: String, kind: Kind): ParseResult[Parsed] = {
-    // Parse into tags
-    VariantParser.parse(content).flatMap { tags =>
-      // Assemble into typed structure
-      kind match {
-        case Kind.TSCN => SceneAssembler.assemble(tags)
-        case Kind.TRES => ResourceAssembler.assemble(tags)
-        case Kind.Config => ConfigAssembler.assemble(tags)
-      }
-    }
-  }
+  def parseTscn(content: String): ParseResult[PackedScene] = 
+    VariantParser.parse(content).flatMap(SceneAssembler.assemble)
+  
+  def parseTres(content: String): ParseResult[TextResource] =
+    VariantParser.parse(content).flatMap(ResourceAssembler.assemble)
+    
+  def parseConfig(content: String): ParseResult[ConfigFile] =
+    VariantParser.parse(content).flatMap(ConfigAssembler.assemble)
 }

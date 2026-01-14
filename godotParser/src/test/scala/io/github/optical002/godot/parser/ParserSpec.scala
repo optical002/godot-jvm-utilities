@@ -10,16 +10,13 @@ class ParserSpec extends munit.FunSuite {
 [node name="Root" type="Node2D"]
 """
 
-    Parser.parse(tscn, Parser.Kind.TSCN) match {
-      case Right(parsed: PackedScene) =>
+    Parser.parseTscn(tscn) match {
+      case Right(parsed) =>
         assertEquals(parsed.loadSteps, 2)
         assertEquals(parsed.format, 4)
         assertEquals(parsed.nodes.length, 1)
         assertEquals(parsed.nodes.head.name, "Root")
         assertEquals(parsed.nodes.head.nodeType, Some("Node2D"))
-
-      case Right(other) =>
-        fail(s"Expected PackedScene, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
@@ -33,14 +30,11 @@ name = "TestResource"
 value = 42
 """
 
-    Parser.parse(tres, Parser.Kind.TRES) match {
+    Parser.parseTres(tres) match {
       case Right(parsed: TextResource) =>
         assertEquals(parsed.resourceType, "Resource")
         assertEquals(parsed.format, 4)
         assertEquals(parsed.properties.size, 2)
-
-      case Right(other) =>
-        fail(s"Expected TextResource, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
@@ -56,14 +50,11 @@ key2 = 123
 key3 = true
 """
 
-    Parser.parse(config, Parser.Kind.Config) match {
+    Parser.parseConfig(config) match {
       case Right(parsed: ConfigFile) =>
         assertEquals(parsed.sections.size, 2)
         assert(parsed.sections.contains("section1"))
         assert(parsed.sections.contains("section2"))
-
-      case Right(other) =>
-        fail(s"Expected ConfigFile, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
@@ -76,13 +67,10 @@ key3 = true
 position = Vector2(10.5, 20.5)
 """
 
-    Parser.parse(tscn, Parser.Kind.TSCN) match {
+    Parser.parseTscn(tscn) match {
       case Right(parsed: PackedScene) =>
         val node = parsed.nodes.head
         assert(node.properties.contains("position"))
-
-      case Right(other) =>
-        fail(s"Expected PackedScene, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
@@ -95,13 +83,10 @@ position = Vector2(10.5, 20.5)
 color = #ff0000
 """
 
-    Parser.parse(tscn, Parser.Kind.TSCN) match {
+    Parser.parseTscn(tscn) match {
       case Right(parsed: PackedScene) =>
         val node = parsed.nodes.head
         assert(node.properties.contains("color"))
-
-      case Right(other) =>
-        fail(s"Expected PackedScene, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
@@ -109,7 +94,7 @@ color = #ff0000
   }
 
   test("Complicated .tscn file") {
-    // TODO The parser does not try to parse BASE64 as string, only raw bytes fix parser.
+    // TODO The parser does not try to parse BASE64 as string for PackedArray, only raw bytes fix parser.
     // TODO Write tests for all Construct Parsers
     val tscn =
       """
@@ -142,12 +127,9 @@ color = #ff0000
         |position_smoothing_enabled = true
         |""".stripMargin
 
-    Parser.parse(tscn, Parser.Kind.TSCN) match {
+    Parser.parseTscn(tscn) match {
       case Right(parsed: PackedScene) =>
         println(parsed)
-
-      case Right(other) =>
-        fail(s"Expected PackedScene, got ${other.getClass.getSimpleName}")
 
       case Left(err) =>
         fail(s"Parse error: ${err.message}")
