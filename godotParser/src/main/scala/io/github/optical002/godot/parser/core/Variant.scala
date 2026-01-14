@@ -111,6 +111,7 @@ extension (v: Variant)
   }
 
   def asFloat: Option[Double] = v match {
+    case Variant.Int(i) => Some(i)
     case Variant.Float(f) => Some(f)
     case _ => None
   }

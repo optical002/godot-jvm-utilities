@@ -143,13 +143,17 @@ object SceneAssembler {
       ))
     }
 
+    println(tag)
+    // TODO the .asString does not work in here, it should be something else entirely
     val nodeType = tag.fields.get("type").flatMap(_.asString)
     val parent = tag.fields.get("parent").flatMap(_.asString)
     val owner = tag.fields.get("owner").flatMap(_.asString)
     val index = tag.fields.get("index").flatMap(_.asInt).map(_.toInt)
     val uniqueId = tag.fields.get("unique_id").flatMap(_.asInt).map(_.toInt)
+    // TODO in here instance=ExtResource("asd") and not a string, not sure about other types for instance in here.
     val instance = tag.fields.get("instance").flatMap(_.asString)
     val instancePlaceholder = tag.fields.get("instance_placeholder").flatMap(_.asString)
+    println(instance)
 
     // Parse groups
     val groups = tag.fields.get("groups").flatMap(_.asArray).map { arr =>
