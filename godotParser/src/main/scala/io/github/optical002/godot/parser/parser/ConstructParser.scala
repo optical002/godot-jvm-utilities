@@ -252,114 +252,243 @@ object ConstructParser {
   }
 
   private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      bytes <- arr.elements.map { v =>
-        v.asInt.map(_.toByte).toRight(invalidArgError("PackedByteArray", 0, "array of integers"))
-      }.foldLeft[ParseResult[Vector[Byte]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(b => v :+ b))
-      )
-    } yield Variant.PackedByteArray(bytes)
+    // Expect opening parenthesis
+    if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
+      return Left(ParseError.SyntaxError(
+        "Expected '(' for PackedByteArray",
+        tokens.currentLine,
+        "",
+        Some("("),
+        None
+      ))
+    }
+
+    // Check first token after (
+    if (!tokens.hasNext) {
+      return Left(ParseError.SyntaxError(
+        "Unexpected EOF in PackedByteArray",
+        tokens.currentLine,
+        "",
+        Some("string or number"),
+        Some("EOF")
+      ))
+    }
+
+    val firstToken = tokens.peek()
+
+    firstToken.tokenType match {
+      case TokenType.String =>
+        // BASE64 encoded string
+        tokens.next() // consume string token
+        val base64String = firstToken.value.asString.getOrElse("")
+
+        // Decode BASE64
+        val bytes = try {
+          java.util.Base64.getDecoder.decode(base64String).toVector
+        } catch {
+          case e: IllegalArgumentException =>
+            return Left(ParseError.SyntaxError(
+              s"Invalid base64-encoded string: ${e.getMessage}",
+              tokens.currentLine,
+              "",
+              Some("valid base64 string"),
+              Some(base64String)
+            ))
+        }
+
+        // Expect closing parenthesis
+        if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
+          return Left(ParseError.SyntaxError(
+            "Expected ')' after base64 string in PackedByteArray",
+            tokens.currentLine,
+            "",
+            Some(")"),
+            None
+          ))
+        }
+
+        Right(Variant.PackedByteArray(bytes))
+
+      case TokenType.ParenthesisClose =>
+        // Empty array
+        tokens.next() // consume closing paren
+        Right(Variant.PackedByteArray(Vector.empty))
+
+      case _ =>
+        // Comma-separated numbers
+        parseCommaSeparatedNumbers(tokens).flatMap { numbers =>
+          val bytes = numbers.map(_.toByte)
+          Right(Variant.PackedByteArray(bytes))
+        }
+    }
   }
 
   private def parsePackedInt32Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      ints <- arr.elements.map { v =>
-        v.asInt.map(_.toInt).toRight(invalidArgError("PackedInt32Array", 0, "array of integers"))
-      }.foldLeft[ParseResult[Vector[Int]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(i => v :+ i))
-      )
-    } yield Variant.PackedInt32Array(ints)
+    parsePackedArray(tokens, "PackedInt32Array").map { numbers =>
+      Variant.PackedInt32Array(numbers.map(_.toLong.toInt))
+    }
   }
 
   private def parsePackedInt64Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      longs <- arr.elements.map { v =>
-        v.asInt.toRight(invalidArgError("PackedInt64Array", 0, "array of integers"))
-      }.foldLeft[ParseResult[Vector[Long]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(l => v :+ l))
-      )
-    } yield Variant.PackedInt64Array(longs)
+    parsePackedArray(tokens, "PackedInt64Array").map { numbers =>
+      Variant.PackedInt64Array(numbers.map(_.toLong))
+    }
   }
 
   private def parsePackedFloat32Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      floats <- arr.elements.map { v =>
-        v.asFloat.map(_.toFloat).toRight(invalidArgError("PackedFloat32Array", 0, "array of numbers"))
-      }.foldLeft[ParseResult[Vector[Float]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(f => v :+ f))
-      )
-    } yield Variant.PackedFloat32Array(floats)
+    parsePackedArray(tokens, "PackedFloat32Array", allowFloat = true).map { numbers =>
+      Variant.PackedFloat32Array(numbers.map(_.toFloat))
+    }
   }
 
   private def parsePackedFloat64Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      doubles <- arr.elements.map { v =>
-        v.asFloat.toRight(invalidArgError("PackedFloat64Array", 0, "array of numbers"))
-      }.foldLeft[ParseResult[Vector[Double]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(d => v :+ d))
-      )
-    } yield Variant.PackedFloat64Array(doubles)
+    parsePackedArray(tokens, "PackedFloat64Array", allowFloat = true).map { numbers =>
+      Variant.PackedFloat64Array(numbers)
+    }
   }
 
   private def parsePackedStringArray(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      strings <- arr.elements.map { v =>
-        v.asString.orElse(v.asStringName).toRight(invalidArgError("PackedStringArray", 0, "array of strings"))
-      }.foldLeft[ParseResult[Vector[String]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(s => v :+ s))
-      )
-    } yield Variant.PackedStringArray(strings)
+    // Expect opening parenthesis
+    if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
+      return Left(ParseError.SyntaxError(
+        "Expected '(' for PackedStringArray",
+        tokens.currentLine,
+        "",
+        Some("("),
+        None
+      ))
+    }
+
+    // Parse comma-separated strings
+    val strings = scala.collection.mutable.ArrayBuffer[String]()
+    var first = true
+
+    while (tokens.hasNext) {
+      if (!first) {
+        val token = tokens.peek()
+        if (token.tokenType == TokenType.Comma) {
+          tokens.next() // consume comma
+        } else if (token.tokenType == TokenType.ParenthesisClose) {
+          tokens.next() // consume closing paren
+          return Right(Variant.PackedStringArray(strings.toVector))
+        } else {
+          return Left(ParseError.SyntaxError(
+            "Expected ',' or ')' in PackedStringArray",
+            tokens.currentLine,
+            "",
+            Some("',' or ')'"),
+            Some(token.tokenType.toString)
+          ))
+        }
+      }
+
+      val token = tokens.peek()
+      if (first && token.tokenType == TokenType.ParenthesisClose) {
+        tokens.next() // consume closing paren
+        return Right(Variant.PackedStringArray(Vector.empty))
+      }
+
+      if (token.tokenType != TokenType.String && token.tokenType != TokenType.StringName) {
+        return Left(ParseError.SyntaxError(
+          "Expected string in PackedStringArray",
+          tokens.currentLine,
+          "",
+          Some("string"),
+          Some(token.tokenType.toString)
+        ))
+      }
+
+      tokens.next() // consume string
+      token.value.asString.orElse(token.value.asStringName) match {
+        case Some(str) => strings += str
+        case None =>
+          return Left(ParseError.SyntaxError(
+            "Expected string value in PackedStringArray",
+            tokens.currentLine,
+            "",
+            Some("string"),
+            None
+          ))
+      }
+
+      first = false
+    }
+
+    Left(ParseError.SyntaxError(
+      "Unexpected EOF in PackedStringArray",
+      tokens.currentLine,
+      "",
+      Some("')'"),
+      Some("EOF")
+    ))
   }
 
   private def parsePackedVector2Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      vectors <- arr.elements.map { v =>
-        v.asVector2.toRight(invalidArgError("PackedVector2Array", 0, "array of Vector2"))
-      }.foldLeft[ParseResult[Vector[(Double, Double)]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(vec => v :+ vec))
-      )
-    } yield Variant.PackedVector2Array(vectors)
+    parsePackedArray(tokens, "PackedVector2Array", allowFloat = true).flatMap { numbers =>
+      if (numbers.length % 2 != 0) {
+        Left(ParseError.SyntaxError(
+          s"PackedVector2Array requires an even number of values (got ${numbers.length})",
+          tokens.currentLine,
+          "",
+          Some("even number of values"),
+          Some(s"${numbers.length} values")
+        ))
+      } else {
+        val vectors = numbers.grouped(2).map { case Vector(x, y, _*) => (x, y) }.toVector
+        Right(Variant.PackedVector2Array(vectors))
+      }
+    }
   }
 
   private def parsePackedVector3Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      vectors <- arr.elements.map { v =>
-        v.asVector3.toRight(invalidArgError("PackedVector3Array", 0, "array of Vector3"))
-      }.foldLeft[ParseResult[Vector[(Double, Double, Double)]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(vec => v :+ vec))
-      )
-    } yield Variant.PackedVector3Array(vectors)
+    parsePackedArray(tokens, "PackedVector3Array", allowFloat = true).flatMap { numbers =>
+      if (numbers.length % 3 != 0) {
+        Left(ParseError.SyntaxError(
+          s"PackedVector3Array requires a multiple of 3 values (got ${numbers.length})",
+          tokens.currentLine,
+          "",
+          Some("multiple of 3 values"),
+          Some(s"${numbers.length} values")
+        ))
+      } else {
+        val vectors = numbers.grouped(3).map { case Vector(x, y, z, _*) => (x, y, z) }.toVector
+        Right(Variant.PackedVector3Array(vectors))
+      }
+    }
   }
 
   private def parsePackedColorArray(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      colors <- arr.elements.map { v =>
-        v.asColor.toRight(invalidArgError("PackedColorArray", 0, "array of Color"))
-      }.foldLeft[ParseResult[Vector[(Double, Double, Double, Double)]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(col => v :+ col))
-      )
-    } yield Variant.PackedColorArray(colors)
+    parsePackedArray(tokens, "PackedColorArray", allowFloat = true).flatMap { numbers =>
+      if (numbers.length % 4 != 0) {
+        Left(ParseError.SyntaxError(
+          s"PackedColorArray requires a multiple of 4 values (got ${numbers.length})",
+          tokens.currentLine,
+          "",
+          Some("multiple of 4 values"),
+          Some(s"${numbers.length} values")
+        ))
+      } else {
+        val colors = numbers.grouped(4).map { case Vector(r, g, b, a, _*) => (r, g, b, a) }.toVector
+        Right(Variant.PackedColorArray(colors))
+      }
+    }
   }
 
   private def parsePackedVector4Array(tokens: TokenIterator): ParseResult[Variant] = {
-    for {
-      arr <- parseArrayArgument(tokens)
-      vectors <- arr.elements.map {
-        case Variant.Vector4(x, y, z, w) => Right((x, y, z, w))
-        case _ => Left(invalidArgError("PackedVector4Array", 0, "array of Vector4"))
-      }.foldLeft[ParseResult[Vector[(Double, Double, Double, Double)]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(vec => v :+ vec))
-      )
-    } yield Variant.PackedVector4Array(vectors)
+    parsePackedArray(tokens, "PackedVector4Array", allowFloat = true).flatMap { numbers =>
+      if (numbers.length % 4 != 0) {
+        Left(ParseError.SyntaxError(
+          s"PackedVector4Array requires a multiple of 4 values (got ${numbers.length})",
+          tokens.currentLine,
+          "",
+          Some("multiple of 4 values"),
+          Some(s"${numbers.length} values")
+        ))
+      } else {
+        val vectors = numbers.grouped(4).map { case Vector(x, y, z, w, _*) => (x, y, z, w) }.toVector
+        Right(Variant.PackedVector4Array(vectors))
+      }
+    }
   }
 
   private def parseTypedArray(tokens: TokenIterator): ParseResult[Variant] = {
@@ -374,6 +503,164 @@ object ConstructParser {
     for {
       dict <- parseDictionaryArgument(tokens)
     } yield dict
+  }
+
+  private def parsePackedArray(tokens: TokenIterator, arrayType: String, allowFloat: Boolean = false): ParseResult[Vector[Double]] = {
+    // Expect opening parenthesis
+    if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
+      return Left(ParseError.SyntaxError(
+        s"Expected '(' for $arrayType",
+        tokens.currentLine,
+        "",
+        Some("("),
+        None
+      ))
+    }
+
+    val numbers = scala.collection.mutable.ArrayBuffer[Double]()
+    var first = true
+
+    while (tokens.hasNext) {
+      if (!first) {
+        val token = tokens.peek()
+        if (token.tokenType == TokenType.Comma) {
+          tokens.next() // consume comma
+        } else if (token.tokenType == TokenType.ParenthesisClose) {
+          tokens.next() // consume closing paren
+          return Right(numbers.toVector)
+        } else {
+          return Left(ParseError.SyntaxError(
+            s"Expected ',' or ')' in $arrayType",
+            tokens.currentLine,
+            "",
+            Some("',' or ')'"),
+            Some(token.tokenType.toString)
+          ))
+        }
+      }
+
+      val token = tokens.peek()
+      if (first && token.tokenType == TokenType.ParenthesisClose) {
+        tokens.next() // consume closing paren
+        return Right(Vector.empty)
+      }
+
+      if (token.tokenType != TokenType.Number) {
+        return Left(ParseError.SyntaxError(
+          s"Expected number in $arrayType",
+          tokens.currentLine,
+          "",
+          Some("number"),
+          Some(token.tokenType.toString)
+        ))
+      }
+
+      tokens.next() // consume number
+      if (allowFloat) {
+        token.value.asFloat match {
+          case Some(num) => numbers += num
+          case None =>
+            return Left(ParseError.SyntaxError(
+              s"Expected numeric value in $arrayType",
+              tokens.currentLine,
+              "",
+              Some("number"),
+              None
+            ))
+        }
+      } else {
+        token.value.asInt match {
+          case Some(num) => numbers += num.toDouble
+          case None =>
+            return Left(ParseError.SyntaxError(
+              s"Expected integer value in $arrayType",
+              tokens.currentLine,
+              "",
+              Some("integer"),
+              None
+            ))
+        }
+      }
+
+      first = false
+    }
+
+    Left(ParseError.SyntaxError(
+      s"Unexpected EOF in $arrayType",
+      tokens.currentLine,
+      "",
+      Some("')'"),
+      Some("EOF")
+    ))
+  }
+
+  private def parseCommaSeparatedNumbers(tokens: TokenIterator): ParseResult[Vector[Long]] = {
+    val numbers = scala.collection.mutable.ArrayBuffer[Long]()
+    var first = true
+
+    while (tokens.hasNext) {
+      if (!first) {
+        val token = tokens.peek()
+        if (token.tokenType == TokenType.Comma) {
+          tokens.next() // consume comma
+        } else if (token.tokenType == TokenType.ParenthesisClose) {
+          tokens.next() // consume closing paren
+          return Right(numbers.toVector)
+        } else {
+          return Left(ParseError.SyntaxError(
+            "Expected ',' or ')' after number",
+            tokens.currentLine,
+            "",
+            Some("',' or ')'"),
+            Some(token.tokenType.toString)
+          ))
+        }
+      }
+
+      if (!tokens.hasNext) {
+        return Left(ParseError.SyntaxError(
+          "Unexpected EOF while parsing numbers",
+          tokens.currentLine,
+          "",
+          Some("number"),
+          Some("EOF")
+        ))
+      }
+
+      val token = tokens.peek()
+      if (token.tokenType != TokenType.Number) {
+        return Left(ParseError.SyntaxError(
+          "Expected number",
+          tokens.currentLine,
+          "",
+          Some("number"),
+          Some(token.tokenType.toString)
+        ))
+      }
+
+      tokens.next() // consume number
+      token.value.asInt match {
+        case Some(num) => numbers += num
+        case None =>
+          return Left(ParseError.SyntaxError(
+            "Expected numeric value",
+            tokens.currentLine,
+            "",
+            Some("number"),
+            None
+          ))
+      }
+
+      first = false
+    }
+
+    Left(ParseError.SyntaxError(
+      "Unexpected EOF while parsing numbers",
+      tokens.currentLine,
+      "",
+      Some("')'"),
+      Some("EOF")
+    ))
   }
 
   private def parseArguments(tokens: TokenIterator, expectedCount: Int): ParseResult[Vector[Variant]] = {

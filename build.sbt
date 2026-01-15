@@ -40,6 +40,7 @@ val sbtPluginScalaVersion = "2.12.21"
 
 lazy val root = (project in file("."))
   .settings(
+    name := "godot-jvm-utilities",
     publish / skip := true,
     version := "0.1.0"
   )

@@ -156,6 +156,16 @@ extension (v: Variant)
     case _ => None
   }
 
+  def asExtResource: Option[java.lang.String] = v match {
+    case Variant.Object(ObjectValue.ExtResource(id)) => Some(id)
+    case _ => None
+  }
+
+  def asSubResource: Option[java.lang.String] = v match {
+    case Variant.Object(ObjectValue.SubResource(id)) => Some(id)
+    case _ => None
+  }
+
   // For use as Dictionary keys
   def asKey: Any = v match {
     case Variant.String(s) => s
