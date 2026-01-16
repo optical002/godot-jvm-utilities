@@ -4,7 +4,7 @@ import io.github.optical002.godot.parser.core.*
 
 object ConstructParser {
 
-  def parseConstruct(name: String, tokens: TokenIterator): ParseResult[Variant] = {
+  def parseConstruct(name: String, tokens: TokenIterator): ParseResult[Variant] =
     name match {
       // Vector types
       case "Vector2" => parseVector2(tokens)
@@ -52,50 +52,45 @@ object ConstructParser {
       case "Dictionary" => parseTypedDictionary(tokens)
 
       case _ => Left(ParseError.SyntaxError(
-        s"Unknown construct: $name",
-        tokens.currentLine,
-        "",
-        Some(s"Known construct name"),
-        Some(name)
-      ))
+          s"Unknown construct: $name",
+          tokens.currentLine,
+          "",
+          Some(s"Known construct name"),
+          Some(name)
+        ))
     }
-  }
 
-  private def parseVector2(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector2(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 2)
       x <- args(0).asFloat.toRight(invalidArgError("Vector2", 0, "number"))
       y <- args(1).asFloat.toRight(invalidArgError("Vector2", 1, "number"))
     } yield Variant.Vector2(x, y)
-  }
 
-  private def parseVector2i(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector2i(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 2)
       x <- args(0).asInt.toRight(invalidArgError("Vector2i", 0, "integer"))
       y <- args(1).asInt.toRight(invalidArgError("Vector2i", 1, "integer"))
     } yield Variant.Vector2i(x, y)
-  }
 
-  private def parseVector3(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector3(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 3)
       x <- args(0).asFloat.toRight(invalidArgError("Vector3", 0, "number"))
       y <- args(1).asFloat.toRight(invalidArgError("Vector3", 1, "number"))
       z <- args(2).asFloat.toRight(invalidArgError("Vector3", 2, "number"))
     } yield Variant.Vector3(x, y, z)
-  }
 
-  private def parseVector3i(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector3i(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 3)
       x <- args(0).asInt.toRight(invalidArgError("Vector3i", 0, "integer"))
       y <- args(1).asInt.toRight(invalidArgError("Vector3i", 1, "integer"))
       z <- args(2).asInt.toRight(invalidArgError("Vector3i", 2, "integer"))
     } yield Variant.Vector3i(x, y, z)
-  }
 
-  private def parseVector4(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector4(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Vector4", 0, "number"))
@@ -103,9 +98,8 @@ object ConstructParser {
       z <- args(2).asFloat.toRight(invalidArgError("Vector4", 2, "number"))
       w <- args(3).asFloat.toRight(invalidArgError("Vector4", 3, "number"))
     } yield Variant.Vector4(x, y, z, w)
-  }
 
-  private def parseVector4i(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseVector4i(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asInt.toRight(invalidArgError("Vector4i", 0, "integer"))
@@ -113,9 +107,8 @@ object ConstructParser {
       z <- args(2).asInt.toRight(invalidArgError("Vector4i", 2, "integer"))
       w <- args(3).asInt.toRight(invalidArgError("Vector4i", 3, "integer"))
     } yield Variant.Vector4i(x, y, z, w)
-  }
 
-  private def parseRect2(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseRect2(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Rect2", 0, "number"))
@@ -123,9 +116,8 @@ object ConstructParser {
       w <- args(2).asFloat.toRight(invalidArgError("Rect2", 2, "number"))
       h <- args(3).asFloat.toRight(invalidArgError("Rect2", 3, "number"))
     } yield Variant.Rect2(x, y, w, h)
-  }
 
-  private def parseRect2i(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseRect2i(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asInt.toRight(invalidArgError("Rect2i", 0, "integer"))
@@ -133,9 +125,8 @@ object ConstructParser {
       w <- args(2).asInt.toRight(invalidArgError("Rect2i", 2, "integer"))
       h <- args(3).asInt.toRight(invalidArgError("Rect2i", 3, "integer"))
     } yield Variant.Rect2i(x, y, w, h)
-  }
 
-  private def parseTransform2D(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseTransform2D(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 6)
       xx <- args(0).asFloat.toRight(invalidArgError("Transform2D", 0, "number"))
@@ -145,50 +136,80 @@ object ConstructParser {
       ox <- args(4).asFloat.toRight(invalidArgError("Transform2D", 4, "number"))
       oy <- args(5).asFloat.toRight(invalidArgError("Transform2D", 5, "number"))
     } yield Variant.Transform2D(xx, xy, yx, yy, ox, oy)
-  }
 
-  private def parseTransform3D(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseTransform3D(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 12)
-      nums <- args.map(_.asFloat.toRight(invalidArgError("Transform3D", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(n => v :+ n))
-      )
+      nums <-
+        args.map(_.asFloat.toRight(invalidArgError("Transform3D", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](
+          Right(Vector.empty)
+        )((acc, r) =>
+          acc.flatMap(v => r.map(n => v :+ n))
+        )
     } yield Variant.Transform3D(
-      nums(0), nums(1), nums(2),
-      nums(3), nums(4), nums(5),
-      nums(6), nums(7), nums(8),
-      nums(9), nums(10), nums(11)
+      nums(0),
+      nums(1),
+      nums(2),
+      nums(3),
+      nums(4),
+      nums(5),
+      nums(6),
+      nums(7),
+      nums(8),
+      nums(9),
+      nums(10),
+      nums(11)
     )
-  }
 
-  private def parseBasis(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseBasis(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 9)
-      nums <- args.map(_.asFloat.toRight(invalidArgError("Basis", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](Right(Vector.empty))((acc, r) =>
+      nums <- args.map(_.asFloat.toRight(invalidArgError("Basis", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](
+        Right(Vector.empty)
+      )((acc, r) =>
         acc.flatMap(v => r.map(n => v :+ n))
       )
     } yield Variant.Basis(
-      nums(0), nums(1), nums(2),
-      nums(3), nums(4), nums(5),
-      nums(6), nums(7), nums(8)
+      nums(0),
+      nums(1),
+      nums(2),
+      nums(3),
+      nums(4),
+      nums(5),
+      nums(6),
+      nums(7),
+      nums(8)
     )
-  }
 
-  private def parseProjection(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseProjection(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 16)
-      nums <- args.map(_.asFloat.toRight(invalidArgError("Projection", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](Right(Vector.empty))((acc, r) =>
-        acc.flatMap(v => r.map(n => v :+ n))
-      )
+      nums <-
+        args.map(_.asFloat.toRight(invalidArgError("Projection", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](
+          Right(Vector.empty)
+        )((acc, r) =>
+          acc.flatMap(v => r.map(n => v :+ n))
+        )
     } yield Variant.Projection(
-      nums(0), nums(1), nums(2), nums(3),
-      nums(4), nums(5), nums(6), nums(7),
-      nums(8), nums(9), nums(10), nums(11),
-      nums(12), nums(13), nums(14), nums(15)
+      nums(0),
+      nums(1),
+      nums(2),
+      nums(3),
+      nums(4),
+      nums(5),
+      nums(6),
+      nums(7),
+      nums(8),
+      nums(9),
+      nums(10),
+      nums(11),
+      nums(12),
+      nums(13),
+      nums(14),
+      nums(15)
     )
-  }
 
-  private def parsePlane(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePlane(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       a <- args(0).asFloat.toRight(invalidArgError("Plane", 0, "number"))
@@ -196,9 +217,8 @@ object ConstructParser {
       c <- args(2).asFloat.toRight(invalidArgError("Plane", 2, "number"))
       d <- args(3).asFloat.toRight(invalidArgError("Plane", 3, "number"))
     } yield Variant.Plane(a, b, c, d)
-  }
 
-  private def parseQuaternion(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseQuaternion(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Quaternion", 0, "number"))
@@ -206,9 +226,8 @@ object ConstructParser {
       z <- args(2).asFloat.toRight(invalidArgError("Quaternion", 2, "number"))
       w <- args(3).asFloat.toRight(invalidArgError("Quaternion", 3, "number"))
     } yield Variant.Quaternion(x, y, z, w)
-  }
 
-  private def parseAABB(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseAABB(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 6)
       px <- args(0).asFloat.toRight(invalidArgError("AABB", 0, "number"))
@@ -218,9 +237,8 @@ object ConstructParser {
       sy <- args(4).asFloat.toRight(invalidArgError("AABB", 4, "number"))
       sz <- args(5).asFloat.toRight(invalidArgError("AABB", 5, "number"))
     } yield Variant.AABB(px, py, pz, sx, sy, sz)
-  }
 
-  private def parseColorConstruct(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseColorConstruct(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 3, 4) // 3 or 4 arguments
       r <- args(0).asFloat.toRight(invalidArgError("Color", 0, "number"))
@@ -228,28 +246,32 @@ object ConstructParser {
       b <- args(2).asFloat.toRight(invalidArgError("Color", 2, "number"))
       a = if (args.length > 3) args(3).asFloat.getOrElse(1.0) else 1.0
     } yield Variant.Color(r, g, b, a)
-  }
 
-  private def parseNodePath(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseNodePath(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
       path <- args(0).asString.orElse(args(0).asStringName).toRight(invalidArgError("NodePath", 0, "string"))
     } yield Variant.NodePath(path)
-  }
 
-  private def parseExtResource(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseExtResource(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
-      id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError("ExtResource", 0, "string or int"))
+      id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError(
+        "ExtResource",
+        0,
+        "string or int"
+      ))
     } yield Variant.Object(ObjectValue.ExtResource(id))
-  }
 
-  private def parseSubResource(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseSubResource(tokens: TokenIterator): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
-      id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError("SubResource", 0, "string or int"))
+      id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError(
+        "SubResource",
+        0,
+        "string or int"
+      ))
     } yield Variant.Object(ObjectValue.SubResource(id))
-  }
 
   private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] = {
     // Expect opening parenthesis
@@ -283,18 +305,19 @@ object ConstructParser {
         val base64String = firstToken.value.asString.getOrElse("")
 
         // Decode BASE64
-        val bytes = try {
-          java.util.Base64.getDecoder.decode(base64String).toVector
-        } catch {
-          case e: IllegalArgumentException =>
-            return Left(ParseError.SyntaxError(
-              s"Invalid base64-encoded string: ${e.getMessage}",
-              tokens.currentLine,
-              "",
-              Some("valid base64 string"),
-              Some(base64String)
-            ))
-        }
+        val bytes =
+          try
+            java.util.Base64.getDecoder.decode(base64String).toVector
+          catch {
+            case e: IllegalArgumentException =>
+              return Left(ParseError.SyntaxError(
+                s"Invalid base64-encoded string: ${e.getMessage}",
+                tokens.currentLine,
+                "",
+                Some("valid base64 string"),
+                Some(base64String)
+              ))
+          }
 
         // Expect closing parenthesis
         if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
@@ -323,29 +346,25 @@ object ConstructParser {
     }
   }
 
-  private def parsePackedInt32Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedInt32Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedInt32Array").map { numbers =>
       Variant.PackedInt32Array(numbers.map(_.toLong.toInt))
     }
-  }
 
-  private def parsePackedInt64Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedInt64Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedInt64Array").map { numbers =>
       Variant.PackedInt64Array(numbers.map(_.toLong))
     }
-  }
 
-  private def parsePackedFloat32Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedFloat32Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedFloat32Array", allowFloat = true).map { numbers =>
       Variant.PackedFloat32Array(numbers.map(_.toFloat))
     }
-  }
 
-  private def parsePackedFloat64Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedFloat64Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedFloat64Array", allowFloat = true).map { numbers =>
       Variant.PackedFloat64Array(numbers)
     }
-  }
 
   private def parsePackedStringArray(tokens: TokenIterator): ParseResult[Variant] = {
     // Expect opening parenthesis
@@ -423,7 +442,7 @@ object ConstructParser {
     ))
   }
 
-  private def parsePackedVector2Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedVector2Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector2Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 2 != 0) {
         Left(ParseError.SyntaxError(
@@ -438,9 +457,8 @@ object ConstructParser {
         Right(Variant.PackedVector2Array(vectors))
       }
     }
-  }
 
-  private def parsePackedVector3Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedVector3Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector3Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 3 != 0) {
         Left(ParseError.SyntaxError(
@@ -455,9 +473,8 @@ object ConstructParser {
         Right(Variant.PackedVector3Array(vectors))
       }
     }
-  }
 
-  private def parsePackedColorArray(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedColorArray(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedColorArray", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 4 != 0) {
         Left(ParseError.SyntaxError(
@@ -472,9 +489,8 @@ object ConstructParser {
         Right(Variant.PackedColorArray(colors))
       }
     }
-  }
 
-  private def parsePackedVector4Array(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedVector4Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector4Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 4 != 0) {
         Left(ParseError.SyntaxError(
@@ -489,23 +505,24 @@ object ConstructParser {
         Right(Variant.PackedVector4Array(vectors))
       }
     }
-  }
 
-  private def parseTypedArray(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseTypedArray(tokens: TokenIterator): ParseResult[Variant] =
     // Array[type]([...]) - simplified for now, just return untyped array
     for {
       arr <- parseArrayArgument(tokens)
     } yield arr
-  }
 
-  private def parseTypedDictionary(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseTypedDictionary(tokens: TokenIterator): ParseResult[Variant] =
     // Dictionary[keyType, valueType]({...}) - simplified for now, just return untyped dict
     for {
       dict <- parseDictionaryArgument(tokens)
     } yield dict
-  }
 
-  private def parsePackedArray(tokens: TokenIterator, arrayType: String, allowFloat: Boolean = false): ParseResult[Vector[Double]] = {
+  private def parsePackedArray(
+    tokens: TokenIterator,
+    arrayType: String,
+    allowFloat: Boolean = false
+  ): ParseResult[Vector[Double]] = {
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
       return Left(ParseError.SyntaxError(
@@ -663,9 +680,8 @@ object ConstructParser {
     ))
   }
 
-  private def parseArguments(tokens: TokenIterator, expectedCount: Int): ParseResult[Vector[Variant]] = {
+  private def parseArguments(tokens: TokenIterator, expectedCount: Int): ParseResult[Vector[Variant]] =
     parseArguments(tokens, expectedCount, expectedCount)
-  }
 
   private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int): ParseResult[Vector[Variant]] = {
     val args = scala.collection.mutable.ArrayBuffer[Variant]()
@@ -814,7 +830,7 @@ object ConstructParser {
     }
   }
 
-  private def invalidArgError(construct: String, index: Int, expected: String): ParseError = {
+  private def invalidArgError(construct: String, index: Int, expected: String): ParseError =
     ParseError.SyntaxError(
       s"Invalid argument $index for $construct: expected $expected",
       0,
@@ -822,7 +838,6 @@ object ConstructParser {
       Some(expected),
       None
     )
-  }
 }
 
 class TokenIterator(tokens: Vector[Token]) {

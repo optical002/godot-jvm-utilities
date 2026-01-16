@@ -1,7 +1,7 @@
 package io.github.optical002.godot.parser.assembler
 
 import io.github.optical002.godot.parser.core.*
-import io.github.optical002.godot.parser.model.{TextResource, ExtResource, SubResource}
+import io.github.optical002.godot.parser.model.{ExtResource, SubResource, TextResource}
 
 object ResourceAssembler {
 
@@ -37,7 +37,7 @@ object ResourceAssembler {
     val subResources = Vector.newBuilder[SubResource]
     var resourceProperties = Map.empty[String, Variant]
 
-    for (tag <- tags.tail) {
+    for (tag <- tags.tail)
       tag.name match {
         case "ext_resource" =>
           parseExtResource(tag) match {
@@ -62,7 +62,6 @@ object ResourceAssembler {
             Map("tag" -> other)
           ))
       }
-    }
 
     Right(TextResource(
       resourceType = resourceType,

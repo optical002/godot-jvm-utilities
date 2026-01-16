@@ -8,9 +8,8 @@ object ConfigAssembler {
   def assemble(tags: Vector[Tag]): ParseResult[ConfigFile] = {
     val sections = scala.collection.mutable.Map[String, Map[String, Variant]]()
 
-    for (tag <- tags) {
+    for (tag <- tags)
       sections(tag.name) = tag.fields
-    }
 
     Right(ConfigFile(sections.toMap))
   }

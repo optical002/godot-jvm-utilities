@@ -6,8 +6,8 @@ class CharStream(input: String) {
   private var column: Int = 1
   private var saved: Option[Char] = None
 
-  //noinspection AccessorLikeMethodIsEmptyParen
-  def getChar(): Char = {
+  // noinspection AccessorLikeMethodIsEmptyParen
+  def getChar(): Char =
     saved match {
       case Some(c) =>
         saved = None
@@ -27,7 +27,6 @@ class CharStream(input: String) {
           c
         }
     }
-  }
 
   def saveChar(c: Char): Unit = {
     saved = Some(c)

@@ -129,10 +129,10 @@ color = #ff0000
 
     Parser.parseTscn(tscn) match {
       case Right(parsed: PackedScene) =>
-        println(parsed)
+        pprint.pprintln(parsed)
 
       case Left(err) =>
-        println(err)
+        pprint.pprintln(err)
         fail(s"Parse error: ${err.message}")
     }
   }

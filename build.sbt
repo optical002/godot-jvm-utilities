@@ -1,9 +1,9 @@
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
-import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType, *}
+import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 
-ThisBuild / organization         := "io.github.optical002"
-ThisBuild / organizationName     := "optical002"
+ThisBuild / organization := "io.github.optical002"
+ThisBuild / organizationName := "optical002"
 ThisBuild / organizationHomepage := Some(url("https://github.com/optical002"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
@@ -13,16 +13,16 @@ ThisBuild / scmInfo := Some(
 )
 ThisBuild / developers := List(
   Developer(
-    id    = "optical002",
-    name  = "optical002",
+    id = "optical002",
+    name = "optical002",
     email = "pauliussuku@gmail.com",
-    url   = url("https://github.com/optical002")
+    url = url("https://github.com/optical002")
   )
 )
-ThisBuild / description            := "Utility packages/plugins for game development with godot."
-ThisBuild / licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
-ThisBuild / homepage               := Some(url("https://github.com/optical002/godot-jvm-utilities"))
-ThisBuild / versionScheme          := Some("early-semver")
+ThisBuild / description := "Utility packages/plugins for game development with godot."
+ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
+ThisBuild / homepage := Some(url("https://github.com/optical002/godot-jvm-utilities"))
+ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / credentials ++= Seq(
   Credentials(
@@ -30,7 +30,7 @@ ThisBuild / credentials ++= Seq(
     "central.sonatype.com",
     sys.env.getOrElse("SONATYPE_USERNAME", ""),
     sys.env.getOrElse("SONATYPE_PASSWORD", "")
-  ),
+  )
 )
 ThisBuild / publishTo := localStaging.value
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
@@ -57,7 +57,7 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
     publishMavenStyle := true,
-    sbtPluginPublishLegacyMavenStyle := false,
+    sbtPluginPublishLegacyMavenStyle := false
   )
 
 lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
@@ -70,7 +70,8 @@ lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
     publishMavenStyle := true,
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % "1.0.0" % Test,
-      "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test
+      "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test,
+      "com.lihaoyi" %%% "pprint" % "0.9.6"
     )
   )
 

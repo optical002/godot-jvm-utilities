@@ -1,7 +1,7 @@
 package io.github.optical002.godot.parser.assembler
 
 import io.github.optical002.godot.parser.core.*
-import io.github.optical002.godot.parser.model.{PackedScene, ExtResource, SubResource, NodeData, ConnectionData}
+import io.github.optical002.godot.parser.model.{ConnectionData, ExtResource, NodeData, PackedScene, SubResource}
 
 object SceneAssembler {
 
@@ -38,7 +38,7 @@ object SceneAssembler {
     val connections = Vector.newBuilder[ConnectionData]
     val editableInstances = Vector.newBuilder[String]
 
-    for (tag <- tags.tail) {
+    for (tag <- tags.tail)
       tag.name match {
         case "ext_resource" =>
           parseExtResource(tag) match {
@@ -84,7 +84,6 @@ object SceneAssembler {
             Map("tag" -> other)
           ))
       }
-    }
 
     Right(PackedScene(
       loadSteps = loadSteps,

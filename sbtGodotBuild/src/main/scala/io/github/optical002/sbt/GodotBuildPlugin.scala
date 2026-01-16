@@ -1,9 +1,9 @@
 package io.github.optical002.sbt
 
+import scala.sys.process.Process
+
 import sbt.*
 import sbt.Keys.*
-
-import scala.sys.process.Process
 
 object GodotBuildPlugin extends AutoPlugin {
   override def trigger = allRequirements
@@ -91,7 +91,6 @@ object GodotBuildPlugin extends AutoPlugin {
         state
       }
     },
-
     resolvers += "Local M2 Repository" at s"file://${(LocalRootProject / baseDirectory).value}/.m2/repository",
 
     // Leave this as private to plugin only for now, later on after moving to official plugins will need to remove
@@ -101,7 +100,6 @@ object GodotBuildPlugin extends AutoPlugin {
     kotlinVersion := "1.9.0",
     kotlinCompilerVersion := "2.1.10",
     classGraphVersion := "4.8.179",
-
     libraryDependencies ++= Seq(
       "com.utopia-rise" % "godot-library-debug" % godotKotlinVersion.value % "provided",
       "com.utopia-rise" % "godot-api-library-debug" % godotKotlinVersion.value % "provided",
@@ -114,7 +112,6 @@ object GodotBuildPlugin extends AutoPlugin {
       "com.utopia-rise" % "godot-build-props" % godotKotlinVersion.value % "provided",
       "com.utopia-rise" % "godot-class-graph-symbol-processor" % godotKotlinVersion.value % "provided",
       "com.utopia-rise" % "godot-entry-generator" % godotKotlinVersion.value % "provided",
-
       "io.github.classgraph" % "classgraph" % classGraphVersion.value % "provided",
       "com.squareup" % "kotlinpoet" % "1.14.2" % "provided",
       "org.jetbrains.kotlin" % "kotlin-stdlib" % kotlinVersion.value % "provided",
@@ -123,7 +120,6 @@ object GodotBuildPlugin extends AutoPlugin {
       "org.jetbrains.kotlin" % "kotlin-script-runtime" % kotlinCompilerVersion.value % "provided",
       "org.jetbrains.kotlinx" % "kotlinx-coroutines-core-jvm" % "1.10.1" % "provided"
     ),
-
     downloadMavenDeps := {
       val log = streams.value.log
       val rootBaseDir = (LocalRootProject / baseDirectory).value
@@ -144,7 +140,6 @@ object GodotBuildPlugin extends AutoPlugin {
       Process(Seq("unzip", "-q", zipFile.getAbsolutePath, "-d", rootBaseDir.getAbsolutePath)).!
       ()
     },
-
     embedJre := {
       val log = streams.value.log
       val jvmDir = baseDirectory.value / "jvm"
@@ -181,7 +176,6 @@ object GodotBuildPlugin extends AutoPlugin {
       IO.move(extractedJre, jreDir)
       ()
     },
-
     godotBuild := Def.taskDyn {
       val log = streams.value.log
       val jvmDir = baseDirectory.value / "jvm"
@@ -215,7 +209,6 @@ object GodotBuildPlugin extends AutoPlugin {
         ()
       }
     }.value,
-
     dev := Def.taskDyn {
       val jvmDir = baseDirectory.value / "jvm"
       val mainJar = jvmDir / mainJarFileName
@@ -229,7 +222,6 @@ object GodotBuildPlugin extends AutoPlugin {
         godotBuild
       }
     }.value,
-
     generateClassGraphEntry := {
       val log = streams.value.log
       val generatedDir = target.value / "generated" / "classgraph"
@@ -274,7 +266,11 @@ object ClassGraphRunner {
     // Force fresh generation by using timestamp in settings
     System.setProperty("godot.classgraph.timestamp", "${System.currentTimeMillis}")
     val logger = org.slf4j.LoggerFactory.getLogger("ClassGraphProcessor")
-    val runtimeClassPath: java.util.Set[File] = ${cp.map(f => "\"" + f.getAbsolutePath.replace("\\", "\\\\") + "\"").mkString("Set(", ", ", ")")}.map(new File(_)).asJava
+    val runtimeClassPath: java.util.Set[File] = ${cp.map(f => "\"" + f.getAbsolutePath.replace("\\", "\\\\") + "\"").mkString(
+          "Set(",
+          ", ",
+          ")"
+        )}.map(new File(_)).asJava
     ProcessKt.generateEntryUsingClassGraph(settings, logger, runtimeClassPath)
     println("[ClassGraph] Entry generation complete!")
   }
@@ -290,10 +286,13 @@ object ClassGraphRunner {
         // Compile 'ClassGraphRunner.scala' -> 'ClassGraphRunner.class'
         val compileCmd = Seq(
           "java",
-          "-cp", scalaCompilerCp,
+          "-cp",
+          scalaCompilerCp,
           "dotty.tools.dotc.Main",
-          "-classpath", fullClasspath,
-          "-d", target.value.toString,
+          "-classpath",
+          fullClasspath,
+          "-d",
+          target.value.toString,
           wrapperFile.toString
         )
         Process(compileCmd).!
@@ -301,7 +300,8 @@ object ClassGraphRunner {
         // Run 'ClassGraphRunner.class'
         val runCmd = Seq(
           "java",
-          "-cp", s"${target.value}:$fullClasspath:$scalaCompilerCp",
+          "-cp",
+          s"${target.value}:$fullClasspath:$scalaCompilerCp",
           "ClassGraphRunner"
         )
         Process(runCmd).!
@@ -316,7 +316,6 @@ object ClassGraphRunner {
 
       generatedDir
     },
-
     compileClassGraphEntry := {
       val log = streams.value.log
       val generatedDir = generateClassGraphEntry.value
@@ -352,8 +351,18 @@ object ClassGraphRunner {
         val kotlincCp = providedJars.mkString(":")
 
         try {
-          val args = Seq("java", "-cp", kotlincCp, "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
-            "-d", entryClassesDir.getAbsolutePath, "-cp", cp, "-jvm-target", "17") ++ kotlinFiles.map(_.getAbsolutePath)
+          val args = Seq(
+            "java",
+            "-cp",
+            kotlincCp,
+            "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+            "-d",
+            entryClassesDir.getAbsolutePath,
+            "-cp",
+            cp,
+            "-jvm-target",
+            "17"
+          ) ++ kotlinFiles.map(_.getAbsolutePath)
           Process(args).!
         } catch {
           case e: Exception => log.warn(s"[Entry] Warning: ${e.getMessage}")
@@ -362,7 +371,6 @@ object ClassGraphRunner {
 
       entryClassesDir
     },
-
     packageBootstrapJar := {
       val log = streams.value.log
       val destJar = target.value / "godot-bootstrap.jar"
@@ -394,7 +402,9 @@ object ClassGraphRunner {
 
       val metaInf = jarDir / "META-INF"
       if (metaInf.exists()) {
-        IO.listFiles(metaInf).filter(f => f.getName.endsWith(".SF") || f.getName.endsWith(".DSA") || f.getName.endsWith(".RSA"))
+        IO.listFiles(metaInf).filter(f =>
+          f.getName.endsWith(".SF") || f.getName.endsWith(".DSA") || f.getName.endsWith(".RSA")
+        )
           .foreach(IO.delete)
       }
 
@@ -402,7 +412,6 @@ object ClassGraphRunner {
       log.info(s"[Godot] Bootstrap JAR created: $destJar")
       destJar
     },
-
     packageMainJar := {
       val log = streams.value.log
       val compiledClasses = (Compile / classDirectory).value
@@ -471,7 +480,9 @@ object ClassGraphRunner {
       // Clean up META-INF signatures
       val metaInf = jarDir / "META-INF"
       if (metaInf.exists()) {
-        IO.listFiles(metaInf).filter(f => f.getName.endsWith(".SF") || f.getName.endsWith(".DSA") || f.getName.endsWith(".RSA"))
+        IO.listFiles(metaInf).filter(f =>
+          f.getName.endsWith(".SF") || f.getName.endsWith(".DSA") || f.getName.endsWith(".RSA")
+        )
           .foreach(IO.delete)
       }
 
@@ -479,16 +490,15 @@ object ClassGraphRunner {
       log.info(s"[Godot] Main JAR created: $destJar")
       destJar
     },
-
     generateGdIgnoreFiles := {
       Vector(
         baseDirectory.value / "target",
         baseDirectory.value / "modules",
         baseDirectory.value / "src",
-        baseDirectory.value / "jvm",
+        baseDirectory.value / "jvm"
       ).filter(d => !d.exists()).foreach { dir =>
         IO.write(dir / ".gdignore", "")
       }
-    },
+    }
   )
 }

@@ -4,7 +4,7 @@ import io.github.optical002.godot.parser.core.*
 
 class VariantTokenizer(stream: CharStream) {
 
-  //noinspection AccessorLikeMethodIsEmptyParen
+  // noinspection AccessorLikeMethodIsEmptyParen
   def getToken(): ParseResult[Token] = {
     skipWhitespaceAndComments()
 
@@ -34,11 +34,11 @@ class VariantTokenizer(stream: CharStream) {
       case c if c.isDigit => stream.saveChar(c); parseNumber(hasSign = false)
       case c if c.isLetter || c == '_' => stream.saveChar(c); parseIdentifier()
       case c => Left(ParseError.TokenizeError(
-        s"Unexpected character: '$c' (ASCII ${c.toInt})",
-        startLine,
-        startColumn,
-        stream.getContext()
-      ))
+          s"Unexpected character: '$c' (ASCII ${c.toInt})",
+          startLine,
+          startColumn,
+          stream.getContext()
+        ))
     }
 
     result.map { case (tokenType, value) =>
@@ -272,9 +272,9 @@ class VariantTokenizer(stream: CharStream) {
       }
 
       val digit = if (c.isDigit) c - '0'
-                  else if (c >= 'a' && c <= 'f') c - 'a' + 10
-                  else if (c >= 'A' && c <= 'F') c - 'A' + 10
-                  else 0
+      else if (c >= 'a' && c <= 'f') c - 'a' + 10
+      else if (c >= 'A' && c <= 'F') c - 'A' + 10
+      else 0
 
       codePoint = (codePoint << 4) | digit
     }
@@ -357,13 +357,13 @@ class VariantTokenizer(stream: CharStream) {
       case "-inf" | "inf_neg" => Right(Variant.Float(Double.NegativeInfinity))
       case "nan" => Right(Variant.Float(Double.NaN))
       case _ =>
-        try {
+        try
           if (isFloat) {
             Right(Variant.Float(numString.toDouble))
           } else {
             Right(Variant.Int(numString.toLong))
           }
-        } catch {
+        catch {
           case _: NumberFormatException =>
             Left(ParseError.TokenizeError(
               s"Invalid number format: $numString",
@@ -393,10 +393,10 @@ class VariantTokenizer(stream: CharStream) {
     Right((TokenType.Identifier, Variant.String(ident.toString)))
   }
 
-  private def isHexDigit(c: Char): Boolean = {
+  private def isHexDigit(c: Char): Boolean =
     c.isDigit || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
-  }
 }
 
-private enum NumberState:
+private enum NumberState {
   case Start, Integer, Decimal, ExpSign, Exponent, Done
+}

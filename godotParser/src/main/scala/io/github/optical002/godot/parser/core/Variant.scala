@@ -1,6 +1,6 @@
 package io.github.optical002.godot.parser.core
 
-enum Variant:
+enum Variant {
   // Primitives (6 types)
   case Nil
   case Bool(value: Boolean)
@@ -28,16 +28,36 @@ enum Variant:
   case Vector4(x: Double, y: Double, z: Double, w: Double)
   case Vector4i(x: Long, y: Long, z: Long, w: Long)
   case Transform3D(
-    bxx: Double, bxy: Double, bxz: Double,
-    byx: Double, byy: Double, byz: Double,
-    bzx: Double, bzy: Double, bzz: Double,
-    ox: Double, oy: Double, oz: Double
+    bxx: Double,
+    bxy: Double,
+    bxz: Double,
+    byx: Double,
+    byy: Double,
+    byz: Double,
+    bzx: Double,
+    bzy: Double,
+    bzz: Double,
+    ox: Double,
+    oy: Double,
+    oz: Double
   )
   case Projection(
-    xx: Double, xy: Double, xz: Double, xw: Double,
-    yx: Double, yy: Double, yz: Double, yw: Double,
-    zx: Double, zy: Double, zz: Double, zw: Double,
-    wx: Double, wy: Double, wz: Double, ww: Double
+    xx: Double,
+    xy: Double,
+    xz: Double,
+    xw: Double,
+    yx: Double,
+    yy: Double,
+    yz: Double,
+    yw: Double,
+    zx: Double,
+    zy: Double,
+    zz: Double,
+    zw: Double,
+    wx: Double,
+    wy: Double,
+    wz: Double,
+    ww: Double
   )
 
   // Color (1 type)
@@ -69,13 +89,15 @@ enum Variant:
   case PackedVector3Array(data: Vector[(Double, Double, Double)])
   case PackedColorArray(data: Vector[(Double, Double, Double, Double)])
   case PackedVector4Array(data: Vector[(Double, Double, Double, Double)])
+}
 
 // Object reference types
-enum ObjectValue:
+enum ObjectValue {
   case ExtResource(id: java.lang.String)
   case SubResource(id: java.lang.String)
   case Resource(path: java.lang.String)
   case Null
+}
 
 // Typed collection metadata
 case class ArrayType(

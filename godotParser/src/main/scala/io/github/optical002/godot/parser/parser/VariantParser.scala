@@ -12,7 +12,7 @@ object VariantParser {
     // Collect all tokens
     val tokensBuilder = Vector.newBuilder[Token]
     var continue = true
-    while (continue) {
+    while (continue)
       tokenizer.getToken() match {
         case Right(token) =>
           if (token.tokenType == TokenType.EOF) {
@@ -22,7 +22,6 @@ object VariantParser {
           }
         case Left(err) => return Left(err)
       }
-    }
 
     val tokens = new TokenIterator(tokensBuilder.result())
     parseTags(tokens)
@@ -31,17 +30,16 @@ object VariantParser {
   def parseTags(tokens: TokenIterator): ParseResult[Vector[Tag]] = {
     val tags = Vector.newBuilder[Tag]
 
-    while (tokens.hasNext) {
+    while (tokens.hasNext)
       parseTagWithProperties(tokens) match {
         case Right(tag) => tags += tag
         case Left(err) => return Left(err)
       }
-    }
 
     Right(tags.result())
   }
 
-  def parseTagWithProperties(tokens: TokenIterator): ParseResult[Tag] = {
+  def parseTagWithProperties(tokens: TokenIterator): ParseResult[Tag] =
     // Parse the tag itself
     parseTag(tokens) match {
       case Right(tag) =>
@@ -70,7 +68,6 @@ object VariantParser {
 
       case Left(err) => Left(err)
     }
-  }
 
   def parseTag(tokens: TokenIterator): ParseResult[Tag] = {
     val startLine = tokens.currentLine
