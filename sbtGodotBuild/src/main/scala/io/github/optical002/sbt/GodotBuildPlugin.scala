@@ -266,7 +266,9 @@ object ClassGraphRunner {
     // Force fresh generation by using timestamp in settings
     System.setProperty("godot.classgraph.timestamp", "${System.currentTimeMillis}")
     val logger = org.slf4j.LoggerFactory.getLogger("ClassGraphProcessor")
-    val runtimeClassPath: java.util.Set[File] = ${cp.map(f => "\"" + f.getAbsolutePath.replace("\\", "\\\\") + "\"").mkString(
+    val runtimeClassPath: java.util.Set[File] = ${cp.map(f =>
+          "\"" + f.getAbsolutePath.replace("\\", "\\\\") + "\""
+        ).mkString(
           "Set(",
           ", ",
           ")"
@@ -490,7 +492,7 @@ object ClassGraphRunner {
       log.info(s"[Godot] Main JAR created: $destJar")
       destJar
     },
-    generateGdIgnoreFiles := {
+    generateGdIgnoreFiles :=
       Vector(
         baseDirectory.value / "target",
         baseDirectory.value / "modules",
@@ -499,6 +501,5 @@ object ClassGraphRunner {
       ).filter(d => !d.exists()).foreach { dir =>
         IO.write(dir / ".gdignore", "")
       }
-    }
   )
 }

@@ -94,8 +94,6 @@ color = #ff0000
   }
 
   test("Complicated .tscn file") {
-    // TODO The parser does not try to parse BASE64 as string for PackedArray, only raw bytes fix parser.
-    // TODO Write tests for all Construct Parsers
     // TODO Player does not seem to have 'instance=ExtResource("4_fu6cl")' in parsed state.
     val tscn =
       """

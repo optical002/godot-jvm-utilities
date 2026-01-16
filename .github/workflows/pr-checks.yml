@@ -1,0 +1,55 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  scalafmt-check:
+    name: Check Scala formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Check Scala formatting
+        run: sbt scalafmtCheckAll scalafmtSbtCheck
+
+  compile-and-test:
+    name: Compile and test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Compile all projects
+        run: sbt compile
+
+      - name: Run tests
+        run: sbt test

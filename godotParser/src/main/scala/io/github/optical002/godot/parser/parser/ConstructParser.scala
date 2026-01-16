@@ -273,78 +273,77 @@ object ConstructParser {
       ))
     } yield Variant.Object(ObjectValue.SubResource(id))
 
-  private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] =
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '(' for PackedByteArray",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
-
-    // Check first token after (
-    if (!tokens.hasNext) {
-      return Left(ParseError.SyntaxError(
+    } else if (!tokens.hasNext) {
+      // Check first token after (
+      Left(ParseError.SyntaxError(
         "Unexpected EOF in PackedByteArray",
         tokens.currentLine,
         "",
         Some("string or number"),
         Some("EOF")
       ))
-    }
+    } else {
+      val firstToken = tokens.peek()
 
-    val firstToken = tokens.peek()
+      firstToken.tokenType match {
+        case TokenType.String =>
+          // BASE64 encoded string
+          tokens.next() // consume string token
+          val base64String = firstToken.value.asString.getOrElse("")
 
-    firstToken.tokenType match {
-      case TokenType.String =>
-        // BASE64 encoded string
-        tokens.next() // consume string token
-        val base64String = firstToken.value.asString.getOrElse("")
+          // Decode BASE64
+          val bytesResult =
+            try
+              Right(java.util.Base64.getDecoder.decode(base64String).toVector)
+            catch {
+              case e: IllegalArgumentException =>
+                Left(ParseError.SyntaxError(
+                  s"Invalid base64-encoded string: ${e.getMessage}",
+                  tokens.currentLine,
+                  "",
+                  Some("valid base64 string"),
+                  Some(base64String)
+                ))
+            }
 
-        // Decode BASE64
-        val bytes =
-          try
-            java.util.Base64.getDecoder.decode(base64String).toVector
-          catch {
-            case e: IllegalArgumentException =>
-              return Left(ParseError.SyntaxError(
-                s"Invalid base64-encoded string: ${e.getMessage}",
+          bytesResult.flatMap { bytes =>
+            // Expect closing parenthesis
+            if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
+              Left(ParseError.SyntaxError(
+                "Expected ')' after base64 string in PackedByteArray",
                 tokens.currentLine,
                 "",
-                Some("valid base64 string"),
-                Some(base64String)
+                Some(")"),
+                None
               ))
+            } else {
+              Right(Variant.PackedByteArray(bytes))
+            }
           }
 
-        // Expect closing parenthesis
-        if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-          return Left(ParseError.SyntaxError(
-            "Expected ')' after base64 string in PackedByteArray",
-            tokens.currentLine,
-            "",
-            Some(")"),
-            None
-          ))
-        }
+        case TokenType.ParenthesisClose =>
+          // Empty array
+          tokens.next() // consume closing paren
+          Right(Variant.PackedByteArray(Vector.empty))
 
-        Right(Variant.PackedByteArray(bytes))
-
-      case TokenType.ParenthesisClose =>
-        // Empty array
-        tokens.next() // consume closing paren
-        Right(Variant.PackedByteArray(Vector.empty))
-
-      case _ =>
-        // Comma-separated numbers
-        parseCommaSeparatedNumbers(tokens).flatMap { numbers =>
-          val bytes = numbers.map(_.toByte)
-          Right(Variant.PackedByteArray(bytes))
-        }
+        case _ =>
+          // Comma-separated numbers
+          parseCommaSeparatedNumbers(tokens).flatMap { numbers =>
+            val bytes = numbers.map(_.toByte)
+            Right(Variant.PackedByteArray(bytes))
+          }
+      }
     }
-  }
 
   private def parsePackedInt32Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedInt32Array").map { numbers =>

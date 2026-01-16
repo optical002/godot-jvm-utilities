@@ -133,64 +133,66 @@ object SceneAssembler {
   }
 
   private def parseNode(tag: Tag): ParseResult[NodeData] = {
-    val name = tag.fields.get("name").flatMap(_.asString).getOrElse {
-      return Left(ParseError.SemanticError(
+    val nameResult = tag.fields.get("name").flatMap(_.asString).toRight {
+      ParseError.SemanticError(
         "node missing 'name' field",
         tag.line,
         "",
         Map.empty
-      ))
+      )
     }
 
-    val nodeType = tag.fields.get("type").flatMap(_.asString)
-    val parent = tag.fields.get("parent").flatMap(_.asString)
-    val owner = tag.fields.get("owner").flatMap(_.asString)
-    val index = tag.fields.get("index").flatMap(_.asInt).map(_.toInt)
-    val uniqueId = tag.fields.get("unique_id").flatMap(_.asInt).map(_.toInt)
-    // instance is an ExtResource reference
-    val instance = tag.fields.get("instance").flatMap(_.asExtResource)
-    // instance_placeholder is a string path
-    val instancePlaceholder = tag.fields.get("instance_placeholder").flatMap(_.asString)
+    nameResult.map { name =>
+      val nodeType = tag.fields.get("type").flatMap(_.asString)
+      val parent = tag.fields.get("parent").flatMap(_.asString)
+      val owner = tag.fields.get("owner").flatMap(_.asString)
+      val index = tag.fields.get("index").flatMap(_.asInt).map(_.toInt)
+      val uniqueId = tag.fields.get("unique_id").flatMap(_.asInt).map(_.toInt)
+      // instance is an ExtResource reference
+      val instance = tag.fields.get("instance").flatMap(_.asExtResource)
+      // instance_placeholder is a string path
+      val instancePlaceholder = tag.fields.get("instance_placeholder").flatMap(_.asString)
 
-    // Parse groups
-    val groups = tag.fields.get("groups").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asString)
-    }.getOrElse(Vector.empty)
+      // Parse groups
+      val groups = tag.fields.get("groups").flatMap(_.asArray).map { arr =>
+        arr.flatMap(_.asString)
+      }.getOrElse(Vector.empty)
 
-    // Parse node_paths
-    val nodePaths = tag.fields.get("node_paths").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asString)
-    }.getOrElse(Vector.empty)
+      // Parse node_paths
+      val nodePaths = tag.fields.get("node_paths").flatMap(_.asArray).map { arr =>
+        arr.flatMap(_.asString)
+      }.getOrElse(Vector.empty)
 
-    // Parse parent_id_path and owner_uid_path
-    val parentIdPath = tag.fields.get("parent_id_path").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asInt).map(_.toInt)
-    }.getOrElse(Vector.empty)
+      // Parse parent_id_path and owner_uid_path
+      val parentIdPath = tag.fields.get("parent_id_path").flatMap(_.asArray).map { arr =>
+        arr.flatMap(_.asInt).map(_.toInt)
+      }.getOrElse(Vector.empty)
 
-    val ownerIdPath = tag.fields.get("owner_uid_path").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asInt).map(_.toInt)
-    }.getOrElse(Vector.empty)
+      val ownerIdPath = tag.fields.get("owner_uid_path").flatMap(_.asArray).map { arr =>
+        arr.flatMap(_.asInt).map(_.toInt)
+      }.getOrElse(Vector.empty)
 
-    // Remove metadata fields from properties
-    val properties = tag.fields - "name" - "type" - "parent" - "owner" - "index" -
-      "unique_id" - "instance" - "instance_placeholder" - "groups" - "node_paths" -
-      "parent_id_path" - "owner_uid_path"
+      // Remove metadata fields from properties
+      val properties = tag.fields - "name" - "type" - "parent" - "owner" - "index" -
+        "unique_id" - "instance" - "instance_placeholder" - "groups" - "node_paths" -
+        "parent_id_path" - "owner_uid_path"
 
-    Right(NodeData(
-      name = name,
-      nodeType = nodeType,
-      parent = parent,
-      parentIdPath = parentIdPath,
-      owner = owner,
-      ownerIdPath = ownerIdPath,
-      index = index,
-      uniqueId = uniqueId,
-      instance = instance,
-      instancePlaceholder = instancePlaceholder,
-      groups = groups,
-      nodePaths = nodePaths,
-      properties = properties
-    ))
+      NodeData(
+        name = name,
+        nodeType = nodeType,
+        parent = parent,
+        parentIdPath = parentIdPath,
+        owner = owner,
+        ownerIdPath = ownerIdPath,
+        index = index,
+        uniqueId = uniqueId,
+        instance = instance,
+        instancePlaceholder = instancePlaceholder,
+        groups = groups,
+        nodePaths = nodePaths,
+        properties = properties
+      )
+    }
   }
 
   private def parseConnection(tag: Tag): ParseResult[ConnectionData] = {
