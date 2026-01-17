@@ -1498,7 +1498,7 @@ class FullTscnSpec extends FunSuite {
         None,
         Vector.empty,
         Vector.empty,
-        Map.empty
+        Map("unique_name_in_owner" -> Variant.Bool(true))
       ),
       NodeData(
         "AllyArea",
@@ -1514,6 +1514,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "z_index" -> Variant.Int(12L),
           "layout_mode" -> Variant.Int(1L),
           "anchors_preset" -> Variant.Int(12L),
@@ -1542,6 +1543,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(1L),
           "anchors_preset" -> Variant.Int(8L),
           "anchor_left" -> Variant.Float(0.5),
@@ -1644,6 +1646,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "text" -> Variant.String("50%"),
           "label_settings" -> Variant.Object(ObjectValue.ExtResource("3_6jddl"))
@@ -1678,6 +1681,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "max_value" -> Variant.Float(1.0),
           "step" -> Variant.Float(0.01),
@@ -1698,7 +1702,7 @@ class FullTscnSpec extends FunSuite {
         None,
         Vector.empty,
         Vector.empty,
-        Map.empty
+        Map("unique_name_in_owner" -> Variant.Bool(true))
       ),
       NodeData(
         "Root",
@@ -1729,6 +1733,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "visible" -> Variant.Bool(false),
           "custom_minimum_size" -> Variant.Vector2(250.0, 0.0),
           "layout_mode" -> Variant.Int(1L),
@@ -1755,6 +1760,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "text" -> Variant.String("Stats")
         )
@@ -1773,6 +1779,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "text" -> Variant.String("Items")
         )
@@ -1791,6 +1798,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "text" -> Variant.String("Break")
         )
@@ -1809,6 +1817,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(0L),
           "offset_left" -> Variant.Float(-5.0),
           "offset_top" -> Variant.Float(250.0),
@@ -1867,6 +1876,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "theme" -> Variant.Object(ObjectValue.SubResource("Theme_ial6e")),
           "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_jd8wo"))
@@ -1874,12 +1884,12 @@ class FullTscnSpec extends FunSuite {
       ),
       NodeData(
         "Label",
-        Some("Label"),
+        None,
         Some("UiRoot/Menu2/MarginContainer/VBoxContainer/MemberItem/PanelContainer"),
         Vector.empty,
         None,
         Vector.empty,
-        Some(0),
+        None,
         None,
         None,
         None,
@@ -1901,6 +1911,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "theme" -> Variant.Object(ObjectValue.SubResource("Theme_w6bn7")),
           "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_cpxna"))
@@ -1908,12 +1919,12 @@ class FullTscnSpec extends FunSuite {
       ),
       NodeData(
         "Label",
-        Some("Label"),
+        None,
         Some("UiRoot/Menu2/MarginContainer/VBoxContainer/ItemsItem/PanelContainer"),
         Vector.empty,
         None,
         Vector.empty,
-        Some(0),
+        None,
         None,
         None,
         None,
@@ -1935,6 +1946,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "theme" -> Variant.Object(ObjectValue.SubResource("Theme_2xomn")),
           "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_xcjvy"))
@@ -1942,12 +1954,12 @@ class FullTscnSpec extends FunSuite {
       ),
       NodeData(
         "Label",
-        Some("Label"),
+        None,
         Some("UiRoot/Menu2/MarginContainer/VBoxContainer/BreakItem/PanelContainer"),
         Vector.empty,
         None,
         Vector.empty,
-        Some(0),
+        None,
         None,
         None,
         None,
@@ -2014,6 +2026,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "clip_contents" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "size_flags_vertical" -> Variant.Int(8L),
@@ -2128,6 +2141,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "text" -> Variant.String("リリアン"),
           "label_settings" -> Variant.Object(ObjectValue.ExtResource("11_prhjf"))
