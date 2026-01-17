@@ -186,10 +186,16 @@ class VariantParserSpec extends FunSuite {
     assertEquals(result, Right(Variant.NodePath("path/to/node")))
   }
 
-  // 24. RID - Not implemented yet in ConstructParser
-  test("parse RID".ignore) {
+  // 24. RID
+  test("parse RID") {
     val result = parseValue("RID(12345)")
     assertEquals(result, Right(Variant.RID(12345)))
+  }
+
+  // 24b. RID (empty)
+  test("parse empty RID") {
+    val result = parseValue("RID()")
+    assertEquals(result, Right(Variant.RID(0)))
   }
 
   // 25. Object - ExtResource
@@ -204,14 +210,14 @@ class VariantParserSpec extends FunSuite {
     assertEquals(result, Right(Variant.Object(ObjectValue.SubResource("1"))))
   }
 
-  // 26. Callable (empty) - Not implemented yet in ConstructParser
-  test("parse Callable".ignore) {
+  // 26. Callable (empty)
+  test("parse Callable") {
     val result = parseValue("Callable()")
     assertEquals(result, Right(Variant.Callable(None, "")))
   }
 
-  // 27. Signal (empty) - Not implemented yet in ConstructParser
-  test("parse Signal".ignore) {
+  // 27. Signal (empty)
+  test("parse Signal") {
     val result = parseValue("Signal()")
     assertEquals(result, Right(Variant.Signal(None, "")))
   }

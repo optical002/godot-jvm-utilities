@@ -215,13 +215,16 @@ object VariantParser {
       case TokenType.String | TokenType.StringName | TokenType.Number | TokenType.Color =>
         Right(tokens.next().value)
 
-      // Identifiers - could be keywords (true/false/null) or constructs
+      // Identifiers - could be keywords (true/false/null/nil) or constructs
       case TokenType.Identifier =>
         val idToken = tokens.next()
         idToken.value.asString.orElse(idToken.value.asStringName) match {
           case Some("true") => Right(Variant.Bool(true))
           case Some("false") => Right(Variant.Bool(false))
-          case Some("null") => Right(Variant.Nil)
+          case Some("null") | Some("nil") => Right(Variant.Nil)
+          case Some("inf") => Right(Variant.Float(Double.PositiveInfinity))
+          case Some("inf_neg") => Right(Variant.Float(Double.NegativeInfinity))
+          case Some("nan") => Right(Variant.Float(Double.NaN))
           case Some(name) =>
             // Check if followed by parenthesis (construct)
             if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {

@@ -19,33 +19,38 @@ object ConstructParser {
       case "Rect2i" => parseRect2i(tokens)
 
       // Transform types
-      case "Transform2D" => parseTransform2D(tokens)
-      case "Transform3D" => parseTransform3D(tokens)
-      case "Basis" => parseBasis(tokens)
+      case "Transform2D" | "Matrix32" => parseTransform2D(tokens) // Matrix32 = Godot 3.x alias
+      case "Transform3D" | "Transform" => parseTransform3D(tokens) // Transform = Godot 3.x alias
+      case "Basis" | "Matrix3" => parseBasis(tokens) // Matrix3 = Godot 3.x alias
       case "Projection" => parseProjection(tokens)
 
       // Other math types
       case "Plane" => parsePlane(tokens)
-      case "Quaternion" | "Quat" => parseQuaternion(tokens)
-      case "AABB" => parseAABB(tokens)
+      case "Quaternion" | "Quat" => parseQuaternion(tokens) // Quat = Godot 3.x alias
+      case "AABB" | "Rect3" => parseAABB(tokens) // Rect3 = Godot 3.x alias
       case "Color" => parseColorConstruct(tokens)
 
       // Path and resource types
       case "NodePath" => parseNodePath(tokens)
+      case "RID" => parseRID(tokens)
       case "ExtResource" => parseExtResource(tokens)
       case "SubResource" => parseSubResource(tokens)
 
-      // Packed arrays
-      case "PackedByteArray" => parsePackedByteArray(tokens)
-      case "PackedInt32Array" => parsePackedInt32Array(tokens)
+      // Callable and Signal
+      case "Callable" => parseCallable(tokens)
+      case "Signal" => parseSignal(tokens)
+
+      // Packed arrays (with Godot 3.x and 2.x compatibility aliases)
+      case "PackedByteArray" | "PoolByteArray" | "ByteArray" => parsePackedByteArray(tokens)
+      case "PackedInt32Array" | "PackedIntArray" | "PoolIntArray" | "IntArray" => parsePackedInt32Array(tokens)
       case "PackedInt64Array" => parsePackedInt64Array(tokens)
-      case "PackedFloat32Array" => parsePackedFloat32Array(tokens)
+      case "PackedFloat32Array" | "PackedRealArray" | "PoolRealArray" | "FloatArray" => parsePackedFloat32Array(tokens)
       case "PackedFloat64Array" => parsePackedFloat64Array(tokens)
-      case "PackedStringArray" => parsePackedStringArray(tokens)
-      case "PackedVector2Array" => parsePackedVector2Array(tokens)
-      case "PackedVector3Array" => parsePackedVector3Array(tokens)
-      case "PackedColorArray" => parsePackedColorArray(tokens)
-      case "PackedVector4Array" => parsePackedVector4Array(tokens)
+      case "PackedStringArray" | "PoolStringArray" | "StringArray" => parsePackedStringArray(tokens)
+      case "PackedVector2Array" | "PoolVector2Array" | "Vector2Array" => parsePackedVector2Array(tokens)
+      case "PackedVector3Array" | "PoolVector3Array" | "Vector3Array" => parsePackedVector3Array(tokens)
+      case "PackedColorArray" | "PoolColorArray" | "ColorArray" => parsePackedColorArray(tokens)
+      case "PackedVector4Array" | "PoolVector4Array" | "Vector4Array" => parsePackedVector4Array(tokens)
 
       // Typed collections
       case "Array" => parseTypedArray(tokens)
@@ -240,11 +245,11 @@ object ConstructParser {
 
   private def parseColorConstruct(tokens: TokenIterator): ParseResult[Variant] =
     for {
-      args <- parseArguments(tokens, 3, 4) // 3 or 4 arguments
+      args <- parseArguments(tokens, 4) // Godot requires exactly 4 arguments (r, g, b, a)
       r <- args(0).asFloat.toRight(invalidArgError("Color", 0, "number"))
       g <- args(1).asFloat.toRight(invalidArgError("Color", 1, "number"))
       b <- args(2).asFloat.toRight(invalidArgError("Color", 2, "number"))
-      a = if (args.length > 3) args(3).asFloat.getOrElse(1.0) else 1.0
+      a <- args(3).asFloat.toRight(invalidArgError("Color", 3, "number"))
     } yield Variant.Color(r, g, b, a)
 
   private def parseNodePath(tokens: TokenIterator): ParseResult[Variant] =
@@ -272,6 +277,31 @@ object ConstructParser {
         "string or int"
       ))
     } yield Variant.Object(ObjectValue.SubResource(id))
+
+  private def parseRID(tokens: TokenIterator): ParseResult[Variant] = {
+    // RID can be RID() (empty) or RID(uint64_number)
+    for {
+      args <- parseArguments(tokens, 0, 1) // 0 or 1 arguments
+      rid <- args.headOption match {
+        case None => Right(0L) // Empty RID()
+        case Some(variant) => variant.asInt.toRight(invalidArgError("RID", 0, "integer"))
+      }
+    } yield Variant.RID(rid)
+  }
+
+  private def parseCallable(tokens: TokenIterator): ParseResult[Variant] = {
+    // Callable only supports Callable() (empty)
+    for {
+      args <- parseArguments(tokens, 0)
+    } yield Variant.Callable(None, "")
+  }
+
+  private def parseSignal(tokens: TokenIterator): ParseResult[Variant] = {
+    // Signal only supports Signal() (empty)
+    for {
+      args <- parseArguments(tokens, 0)
+    } yield Variant.Signal(None, "")
+  }
 
   private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] =
     // Expect opening parenthesis

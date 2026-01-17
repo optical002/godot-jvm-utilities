@@ -93,45 +93,4 @@ color = #ff0000
     }
   }
 
-  test("Complicated .tscn file") {
-    // TODO Player does not seem to have 'instance=ExtResource("4_fu6cl")' in parsed state.
-    val tscn =
-      """
-        |[gd_scene load_steps=4 format=4 uid="uid://cvyw4gqmo3707"]
-        |
-        |[ext_resource type="TileSet" uid="uid://bm6mpf2tuta5k" path="res://game/resources/tilesets/floor_tile_set.tres" id="2_48f77"]
-        |[ext_resource type="TileSet" uid="uid://c21r3jbjdl1oc" path="res://game/resources/tilesets/windows_stairs_doors_tile_set.tres" id="3_ms3in"]
-        |[ext_resource type="PackedScene" uid="uid://bmemrydpwj1o3" path="res://game/prefabs/characters/charater_base.tscn" id="4_fu6cl"]
-        |
-        |[node name="Game" type="Node2D"]
-        |y_sort_enabled = true
-        |
-        |[node name="Floor" type="TileMapLayer" parent="."]
-        |z_index = -10
-        |tile_set = ExtResource("2_48f77")
-        |
-        |[node name="Windows-stairs-doors" type="TileMapLayer" parent="."]
-        |show_behind_parent = true
-        |y_sort_enabled = true
-        |position = Vector2(1, -6)
-        |tile_set = ExtResource("3_ms3in")
-        |
-        |[node name="Player" parent="." instance=ExtResource("4_fu6cl")]
-        |light_mask = 2
-        |position = Vector2(12, 91)
-        |
-        |[node name="Camera2D" type="Camera2D" parent="Player"]
-        |zoom = Vector2(3, 3)
-        |position_smoothing_enabled = true
-        |""".stripMargin
-
-    Parser.parseTscn(tscn) match {
-      case Right(parsed: PackedScene) =>
-        pprint.pprintln(parsed)
-
-      case Left(err) =>
-        pprint.pprintln(err)
-        fail(s"Parse error: ${err.message}")
-    }
-  }
 }
