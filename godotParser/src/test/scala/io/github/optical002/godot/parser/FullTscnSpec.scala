@@ -2191,6 +2191,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
+          "unique_name_in_owner" -> Variant.Bool(true),
           "clip_contents" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "size_flags_vertical" -> Variant.Int(0L),

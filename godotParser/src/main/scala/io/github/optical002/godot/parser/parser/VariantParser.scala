@@ -198,8 +198,47 @@ object VariantParser {
           case Some("inf_neg") => Right(Variant.Float(Double.NegativeInfinity))
           case Some("nan") => Right(Variant.Float(Double.NaN))
           case Some(name) =>
-            // Check if followed by parenthesis (construct)
-            if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
+            // Check for ObjectValue.ConstructName(...) pattern
+            if (name == "ObjectValue" && tokens.hasNext && tokens.peek().tokenType == TokenType.Period) {
+              tokens.next() // Consume the period
+              if (tokens.hasNext && tokens.peek().tokenType == TokenType.Identifier) {
+                val constructToken = tokens.next()
+                constructToken.value.asString.orElse(constructToken.value.asStringName) match {
+                  case Some("Null") =>
+                    // ObjectValue.Null is a special case for null object references
+                    Right(Variant.Object(ObjectValue.Null))
+                  case Some(constructName) =>
+                    if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
+                      ConstructParser.parseConstruct(constructName, tokens)
+                    } else {
+                      Left(ParseError.SyntaxError(
+                        s"Expected '(' after ObjectValue.$constructName",
+                        tokens.currentLine,
+                        "",
+                        Some("'('"),
+                        Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
+                      ))
+                    }
+                  case None =>
+                    Left(ParseError.SyntaxError(
+                      "Invalid construct name after ObjectValue.",
+                      tokens.currentLine,
+                      "",
+                      Some("construct name"),
+                      None
+                    ))
+                }
+              } else {
+                Left(ParseError.SyntaxError(
+                  "Expected construct name after ObjectValue.",
+                  tokens.currentLine,
+                  "",
+                  Some("identifier"),
+                  Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
+                ))
+              }
+            } else if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
+              // Check if followed by parenthesis (construct)
               ConstructParser.parseConstruct(name, tokens)
             } else {
               // Just an identifier value - treat as string
