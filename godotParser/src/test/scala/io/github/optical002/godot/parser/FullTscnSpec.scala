@@ -616,12 +616,12 @@ class FullTscnSpec extends FunSuite {
     loadSteps = 8,
     format = 3,
     uid = Some("uid://d3doqyggcpkeb"),
-    ObjectValue.ExtResources = Vector(
-      ObjectValue.ExtResource("1_8162q", "Script", "res://Player.cs", None),
-      ObjectValue.ExtResource("1_d8csi", "Texture2D", "res://art/playerGrey_up1.png", Some("uid://bxacee62lu81")),
-      ObjectValue.ExtResource("2_ljnug", "Texture2D", "res://art/playerGrey_up2.png", Some("uid://b70twminywsyj")),
-      ObjectValue.ExtResource("3_krmrv", "Texture2D", "res://art/playerGrey_walk1.png", Some("uid://81wtq6p1bwfg")),
-      ObjectValue.ExtResource("4_jrmwk", "Texture2D", "res://art/playerGrey_walk2.png", Some("uid://da45skrrq48dj"))
+    extResources = Vector(
+      ExtResource("1_8162q", "Script", "res://Player.cs", None),
+      ExtResource("1_d8csi", "Texture2D", "res://art/playerGrey_up1.png", Some("uid://bxacee62lu81")),
+      ExtResource("2_ljnug", "Texture2D", "res://art/playerGrey_up2.png", Some("uid://b70twminywsyj")),
+      ExtResource("3_krmrv", "Texture2D", "res://art/playerGrey_walk1.png", Some("uid://81wtq6p1bwfg")),
+      ExtResource("4_jrmwk", "Texture2D", "res://art/playerGrey_walk2.png", Some("uid://da45skrrq48dj"))
     ),
     subResources = Vector(
       SubResource(
@@ -717,7 +717,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "scale" -> Variant.Vector2(0.5, 0.5),
-          "sprite_frames" -> Variant.Object(SubResource("SpriteFrames_707dc")),
+          "sprite_frames" -> Variant.Object(ObjectValue.SubResource("SpriteFrames_707dc")),
           "animation" -> Variant.StringName("up")
         )
       ),
@@ -734,7 +734,7 @@ class FullTscnSpec extends FunSuite {
         None,
         Vector.empty,
         Vector.empty,
-        Map("shape" -> Variant.Object(SubResource("CapsuleShape2D_6tr4r")))
+        Map("shape" -> Variant.Object(ObjectValue.SubResource("CapsuleShape2D_6tr4r")))
       )
     ),
     connections = Vector(
@@ -746,14 +746,14 @@ class FullTscnSpec extends FunSuite {
     loadSteps = 10,
     format = 3,
     uid = Some("uid://buj8wisq0l07p"),
-    ObjectValue.ExtResources = Vector(
-      ObjectValue.ExtResource("1_k5y70", "Script", "res://Mob.cs", None),
-      ObjectValue.ExtResource("1_ytrj5", "Texture2D", "res://art/enemyFlyingAlt_1.png", Some("uid://bye51w2ru5vie")),
-      ObjectValue.ExtResource("2_bls2m", "Texture2D", "res://art/enemyFlyingAlt_2.png", Some("uid://dhfn0d6qh0qvy")),
-      ObjectValue.ExtResource("3_j0cqp", "Texture2D", "res://art/enemySwimming_1.png", Some("uid://bwrqjt5jq5xfb")),
-      ObjectValue.ExtResource("4_bnymk", "Texture2D", "res://art/enemySwimming_2.png", Some("uid://c5uy3836dmlt5")),
-      ObjectValue.ExtResource("5_kl1oy", "Texture2D", "res://art/enemyWalking_1.png", Some("uid://cdv0chn06a4bm")),
-      ObjectValue.ExtResource("6_h88k2", "Texture2D", "res://art/enemyWalking_2.png", Some("uid://cr0p08wnu2xm8"))
+    extResources = Vector(
+      ExtResource("1_k5y70", "Script", "res://Mob.cs", None),
+      ExtResource("1_ytrj5", "Texture2D", "res://art/enemyFlyingAlt_1.png", Some("uid://bye51w2ru5vie")),
+      ExtResource("2_bls2m", "Texture2D", "res://art/enemyFlyingAlt_2.png", Some("uid://dhfn0d6qh0qvy")),
+      ExtResource("3_j0cqp", "Texture2D", "res://art/enemySwimming_1.png", Some("uid://bwrqjt5jq5xfb")),
+      ExtResource("4_bnymk", "Texture2D", "res://art/enemySwimming_2.png", Some("uid://c5uy3836dmlt5")),
+      ExtResource("5_kl1oy", "Texture2D", "res://art/enemyWalking_1.png", Some("uid://cdv0chn06a4bm")),
+      ExtResource("6_h88k2", "Texture2D", "res://art/enemyWalking_2.png", Some("uid://cr0p08wnu2xm8"))
     ),
     subResources = Vector(
       SubResource(
@@ -872,7 +872,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "scale" -> Variant.Vector2(0.75, 0.75),
-          "sprite_frames" -> Variant.Object(SubResource("SpriteFrames_7jrot")),
+          "sprite_frames" -> Variant.Object(ObjectValue.SubResource("SpriteFrames_7jrot")),
           "animation" -> Variant.StringName("swim")
         )
       ),
@@ -906,7 +906,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "rotation" -> Variant.Float(1.5708),
-          "shape" -> Variant.Object(SubResource("CapsuleShape2D_r7hl5"))
+          "shape" -> Variant.Object(ObjectValue.SubResource("CapsuleShape2D_r7hl5"))
         )
       )
     ),
@@ -929,13 +929,13 @@ class FullTscnSpec extends FunSuite {
     loadSteps = 8,
     format = 3,
     uid = Some("uid://hc1rholre01q"),
-    ObjectValue.ExtResources = Vector(
-      ObjectValue.ExtResource("1_4hmc7", "Script", "res://Main.cs", None),
-      ObjectValue.ExtResource("2_q46v7", "PackedScene", "res://Mob.tscn", Some("uid://05vlkouevqb2")),
-      ObjectValue.ExtResource("3_s3hlu", "PackedScene", "res://Player.tscn", Some("uid://g76r1u8cf6n7")),
-      ObjectValue.ExtResource("4_10xq1", "PackedScene", "res://Hud.tscn", Some("uid://8guvv3ewr5vx")),
-      ObjectValue.ExtResource("5_tpwrv", "AudioStream", "res://art/House In a Forest Loop.ogg", Some("uid://vnabgy5q8g1u")),
-      ObjectValue.ExtResource("6_1uk8d", "AudioStream", "res://art/gameover.wav", Some("uid://bwgfexqh0qy0c"))
+    extResources = Vector(
+      ExtResource("1_4hmc7", "Script", "res://Main.cs", None),
+      ExtResource("2_q46v7", "PackedScene", "res://Mob.tscn", Some("uid://05vlkouevqb2")),
+      ExtResource("3_s3hlu", "PackedScene", "res://Player.tscn", Some("uid://g76r1u8cf6n7")),
+      ExtResource("4_10xq1", "PackedScene", "res://Hud.tscn", Some("uid://8guvv3ewr5vx")),
+      ExtResource("5_tpwrv", "AudioStream", "res://art/House In a Forest Loop.ogg", Some("uid://vnabgy5q8g1u")),
+      ExtResource("6_1uk8d", "AudioStream", "res://art/gameover.wav", Some("uid://bwgfexqh0qy0c"))
     ),
     subResources = Vector(
       SubResource(
@@ -1100,7 +1100,7 @@ class FullTscnSpec extends FunSuite {
         None,
         Vector.empty,
         Vector.empty,
-        Map("curve" -> Variant.Object(SubResource("Curve2D_6d42f")))
+        Map("curve" -> Variant.Object(ObjectValue.SubResource("Curve2D_6d42f")))
       ),
       NodeData(
         "MobSpawnLocation",
@@ -1196,9 +1196,9 @@ class FullTscnSpec extends FunSuite {
     loadSteps = 4,
     format = 3,
     uid = Some("uid://c3sfqrrm1v350"),
-    ObjectValue.ExtResources = Vector(
-      ObjectValue.ExtResource("1_rkbfj", "Texture2D", "res://Assets/PathDisplay.png", Some("uid://b35bon1qhoeuh")),
-      ObjectValue.ExtResource("2_hwkby", "Script", "res://Scripts/PathTracker.cs", None)
+    extResources = Vector(
+      ExtResource("1_rkbfj", "Texture2D", "res://Assets/PathDisplay.png", Some("uid://b35bon1qhoeuh")),
+      ExtResource("2_hwkby", "Script", "res://Scripts/PathTracker.cs", None)
     ),
     subResources = Vector(
       SubResource(
@@ -1260,7 +1260,7 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Vector.empty,
         Map(
-          "sprite_frames" -> Variant.Object(SubResource("SpriteFrames_kwub8")),
+          "sprite_frames" -> Variant.Object(ObjectValue.SubResource("SpriteFrames_kwub8")),
           "script" -> Variant.Object(ObjectValue.ExtResource("2_hwkby"))
         )
       )
@@ -1272,23 +1272,23 @@ class FullTscnSpec extends FunSuite {
     loadSteps = 32,
     format = 3,
     uid = Some("uid://4ujxbrmndad2"),
-    ObjectValue.ExtResources = Vector(
-      ObjectValue.ExtResource("1_htj2o", "PackedScene", "res://Scenes/Adventure/AllyArea.tscn", Some("uid://bshd6dwdnxoca")),
-      ObjectValue.ExtResource("2_o6236", "StyleBox", "res://Styles/GeneralPanel.tres", Some("uid://dhbndr1exet8b")),
-      ObjectValue.ExtResource("3_6jddl", "LabelSettings", "res://Styles/DarkFont.tres", Some("uid://bdlshe8bsoefc")),
-      ObjectValue.ExtResource("4_2lal6", "Texture2D", "res://Textures/HpFrame.png", Some("uid://ckg265j5wi4bd")),
-      ObjectValue.ExtResource("5_6tnpg", "Texture2D", "res://Textures/HpFill.png", Some("uid://dew5mh2d0rrjr")),
-      ObjectValue.ExtResource("7_k8514", "Texture2D", "res://Textures/Background/Dungeon1.png", Some("uid://bbefokxamcmh2")),
-      ObjectValue.ExtResource("7_qberl", "StyleBox", "res://Styles/ThemedPanel.tres", Some("uid://hdey5ddoms6o")),
-      ObjectValue.ExtResource("7_usk6j", "PackedScene", "res://Scenes/Town/RoleCommand.tscn", Some("uid://d4ni6uubu6pl6")),
-      ObjectValue.ExtResource("9_5k2lr", "FontFile", "res://Resources/Styles/mplus-2p-regular.ttf", Some("uid://c056irjwb6kk4")),
-      ObjectValue.ExtResource(
+    extResources = Vector(
+      ExtResource("1_htj2o", "PackedScene", "res://Scenes/Adventure/AllyArea.tscn", Some("uid://bshd6dwdnxoca")),
+      ExtResource("2_o6236", "StyleBox", "res://Styles/GeneralPanel.tres", Some("uid://dhbndr1exet8b")),
+      ExtResource("3_6jddl", "LabelSettings", "res://Styles/DarkFont.tres", Some("uid://bdlshe8bsoefc")),
+      ExtResource("4_2lal6", "Texture2D", "res://Textures/HpFrame.png", Some("uid://ckg265j5wi4bd")),
+      ExtResource("5_6tnpg", "Texture2D", "res://Textures/HpFill.png", Some("uid://dew5mh2d0rrjr")),
+      ExtResource("7_k8514", "Texture2D", "res://Textures/Background/Dungeon1.png", Some("uid://bbefokxamcmh2")),
+      ExtResource("7_qberl", "StyleBox", "res://Styles/ThemedPanel.tres", Some("uid://hdey5ddoms6o")),
+      ExtResource("7_usk6j", "PackedScene", "res://Scenes/Town/RoleCommand.tscn", Some("uid://d4ni6uubu6pl6")),
+      ExtResource("9_5k2lr", "FontFile", "res://Resources/Styles/mplus-2p-regular.ttf", Some("uid://c056irjwb6kk4")),
+      ExtResource(
         "9_5qdy0",
         "PackedScene",
         "res://Scenes/Adventure/AdventureMenuButton.tscn",
         Some("uid://by34gbkawuexp")
       ),
-      ObjectValue.ExtResource("11_prhjf", "LabelSettings", "res://Styles/RegularFont.tres", Some("uid://bnpddypllwjny"))
+      ExtResource("11_prhjf", "LabelSettings", "res://Styles/RegularFont.tres", Some("uid://bnpddypllwjny"))
     ),
     subResources = Vector(
       SubResource("StyleBoxEmpty_wg3gt", "StyleBoxEmpty", Map.empty),
@@ -1313,17 +1313,17 @@ class FullTscnSpec extends FunSuite {
         "Theme",
         Map(
           "resource_local_to_scene" -> Variant.Bool(true),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wg3gt")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_qsdvr")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_0cfoa")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_yv6d0")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_i3ua8")),
-          "HoverableControl/styles/panel" -> Variant.Object(ObjectReference.Null),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wg3gt")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_qsdvr")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_0cfoa")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_yv6d0")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_i3ua8")),
+          "HoverableControl/styles/panel" -> Variant.Object(ObjectValue.Null),
           "Label/colors/font_color" -> Variant.Color(0.839216, 0.960784, 0.682353, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_5u7r7"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_5u7r7"))
         )
       ),
       SubResource("StyleBoxEmpty_wuuu5", "StyleBoxEmpty", Map.empty),
@@ -1348,16 +1348,16 @@ class FullTscnSpec extends FunSuite {
           "Button/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Button/font_sizes/font_size" -> Variant.Int(24L),
           "Button/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wuuu5")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_bog2v")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_dh2c4")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_m6ehi")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_cpir8")),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wuuu5")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_bog2v")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_dh2c4")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_m6ehi")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_cpir8")),
           "Label/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_h4s01"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_h4s01"))
         )
       ),
       SubResource(
@@ -1365,17 +1365,17 @@ class FullTscnSpec extends FunSuite {
         "Theme",
         Map(
           "resource_local_to_scene" -> Variant.Bool(true),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wg3gt")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_qsdvr")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_0cfoa")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_yv6d0")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_i3ua8")),
-          "HoverableControl/styles/panel" -> Variant.Object(ObjectReference.Null),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wg3gt")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_qsdvr")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_0cfoa")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_yv6d0")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_i3ua8")),
+          "HoverableControl/styles/panel" -> Variant.Object(ObjectValue.Null),
           "Label/colors/font_color" -> Variant.Color(0.839216, 0.960784, 0.682353, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_5u7r7"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_5u7r7"))
         )
       ),
       SubResource(
@@ -1386,16 +1386,16 @@ class FullTscnSpec extends FunSuite {
           "Button/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Button/font_sizes/font_size" -> Variant.Int(24L),
           "Button/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wuuu5")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_bog2v")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_dh2c4")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_m6ehi")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_cpir8")),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wuuu5")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_bog2v")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_dh2c4")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_m6ehi")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_cpir8")),
           "Label/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_h4s01"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_h4s01"))
         )
       ),
       SubResource(
@@ -1403,17 +1403,17 @@ class FullTscnSpec extends FunSuite {
         "Theme",
         Map(
           "resource_local_to_scene" -> Variant.Bool(true),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wg3gt")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_qsdvr")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_0cfoa")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_yv6d0")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_i3ua8")),
-          "HoverableControl/styles/panel" -> Variant.Object(ObjectReference.Null),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wg3gt")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_qsdvr")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_0cfoa")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_yv6d0")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_i3ua8")),
+          "HoverableControl/styles/panel" -> Variant.Object(ObjectValue.Null),
           "Label/colors/font_color" -> Variant.Color(0.839216, 0.960784, 0.682353, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_5u7r7"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_5u7r7"))
         )
       ),
       SubResource(
@@ -1424,16 +1424,16 @@ class FullTscnSpec extends FunSuite {
           "Button/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Button/font_sizes/font_size" -> Variant.Int(24L),
           "Button/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "Button/styles/disabled" -> Variant.Object(SubResource("StyleBoxEmpty_wuuu5")),
-          "Button/styles/focus" -> Variant.Object(SubResource("StyleBoxEmpty_bog2v")),
-          "Button/styles/hover" -> Variant.Object(SubResource("StyleBoxFlat_dh2c4")),
-          "Button/styles/normal" -> Variant.Object(SubResource("StyleBoxEmpty_m6ehi")),
-          "Button/styles/pressed" -> Variant.Object(SubResource("StyleBoxEmpty_cpir8")),
+          "Button/styles/disabled" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_wuuu5")),
+          "Button/styles/focus" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_bog2v")),
+          "Button/styles/hover" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_dh2c4")),
+          "Button/styles/normal" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_m6ehi")),
+          "Button/styles/pressed" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_cpir8")),
           "Label/colors/font_color" -> Variant.Color(0.252286, 0.310152, 0.210365, 1.0),
           "Label/constants/line_spacing" -> Variant.Int(3L),
           "Label/font_sizes/font_size" -> Variant.Int(24L),
           "Label/fonts/font" -> Variant.Object(ObjectValue.ExtResource("9_5k2lr")),
-          "PanelContainer/styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_h4s01"))
+          "PanelContainer/styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_h4s01"))
         )
       ),
       SubResource("StyleBoxEmpty_w4yhy", "StyleBoxEmpty", Map.empty),
@@ -1868,8 +1868,8 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "layout_mode" -> Variant.Int(2L),
-          "theme" -> Variant.Object(SubResource("Theme_ial6e")),
-          "HoverTheme" -> Variant.Object(SubResource("Theme_jd8wo"))
+          "theme" -> Variant.Object(ObjectValue.SubResource("Theme_ial6e")),
+          "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_jd8wo"))
         )
       ),
       NodeData(
@@ -1902,8 +1902,8 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "layout_mode" -> Variant.Int(2L),
-          "theme" -> Variant.Object(SubResource("Theme_w6bn7")),
-          "HoverTheme" -> Variant.Object(SubResource("Theme_cpxna"))
+          "theme" -> Variant.Object(ObjectValue.SubResource("Theme_w6bn7")),
+          "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_cpxna"))
         )
       ),
       NodeData(
@@ -1936,8 +1936,8 @@ class FullTscnSpec extends FunSuite {
         Vector.empty,
         Map(
           "layout_mode" -> Variant.Int(2L),
-          "theme" -> Variant.Object(SubResource("Theme_2xomn")),
-          "HoverTheme" -> Variant.Object(SubResource("Theme_xcjvy"))
+          "theme" -> Variant.Object(ObjectValue.SubResource("Theme_2xomn")),
+          "HoverTheme" -> Variant.Object(ObjectValue.SubResource("Theme_xcjvy"))
         )
       ),
       NodeData(
@@ -1997,7 +1997,7 @@ class FullTscnSpec extends FunSuite {
           "grow_horizontal" -> Variant.Int(2L),
           "grow_vertical" -> Variant.Int(2L),
           "mouse_filter" -> Variant.Int(2L),
-          "theme_override_styles/panel" -> Variant.Object(SubResource("StyleBoxEmpty_w4yhy"))
+          "theme_override_styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxEmpty_w4yhy"))
         )
       ),
       NodeData(
@@ -2017,7 +2017,7 @@ class FullTscnSpec extends FunSuite {
           "clip_contents" -> Variant.Bool(true),
           "layout_mode" -> Variant.Int(2L),
           "size_flags_vertical" -> Variant.Int(8L),
-          "theme_override_styles/panel" -> Variant.Object(SubResource("StyleBoxFlat_yb3xh"))
+          "theme_override_styles/panel" -> Variant.Object(ObjectValue.SubResource("StyleBoxFlat_yb3xh"))
         )
       ),
       NodeData(
