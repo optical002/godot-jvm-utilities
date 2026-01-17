@@ -395,81 +395,80 @@ object ConstructParser {
       Variant.PackedFloat64Array(numbers)
     }
 
-  private def parsePackedStringArray(tokens: TokenIterator): ParseResult[Variant] = {
-    // Expect opening parenthesis
+  private def parsePackedStringArray(tokens: TokenIterator): ParseResult[Variant] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '(' for PackedStringArray",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
-
-    // Parse comma-separated strings
-    val strings = scala.collection.mutable.ArrayBuffer[String]()
-    var first = true
-
-    while (tokens.hasNext) {
-      if (!first) {
-        val token = tokens.peek()
-        if (token.tokenType == TokenType.Comma) {
-          tokens.next() // consume comma
-        } else if (token.tokenType == TokenType.ParenthesisClose) {
-          tokens.next() // consume closing paren
-          return Right(Variant.PackedStringArray(strings.toVector))
+    } else {
+      @scala.annotation.tailrec
+      def parseStrings(acc: Vector[String], expectingCommaOrClose: Boolean): ParseResult[Variant] =
+        if (!tokens.hasNext) {
+          Left(ParseError.SyntaxError(
+            "Unexpected EOF in PackedStringArray",
+            tokens.currentLine,
+            "",
+            Some("')'"),
+            Some("EOF")
+          ))
         } else {
-          return Left(ParseError.SyntaxError(
-            "Expected ',' or ')' in PackedStringArray",
-            tokens.currentLine,
-            "",
-            Some("',' or ')'"),
-            Some(token.tokenType.toString)
-          ))
+          val token = tokens.peek()
+          (expectingCommaOrClose, token.tokenType) match {
+            // Empty array case
+            case (false, TokenType.ParenthesisClose) if acc.isEmpty =>
+              tokens.next() // consume closing paren
+              Right(Variant.PackedStringArray(Vector.empty))
+
+            // After parsing a string, expect comma or closing paren
+            case (true, TokenType.Comma) =>
+              tokens.next() // consume comma
+              parseStrings(acc, expectingCommaOrClose = false)
+
+            case (true, TokenType.ParenthesisClose) =>
+              tokens.next() // consume closing paren
+              Right(Variant.PackedStringArray(acc))
+
+            case (true, other) =>
+              Left(ParseError.SyntaxError(
+                "Expected ',' or ')' in PackedStringArray",
+                tokens.currentLine,
+                "",
+                Some("',' or ')'"),
+                Some(other.toString)
+              ))
+
+            // Expecting a string
+            case (false, TokenType.String) | (false, TokenType.StringName) =>
+              val strToken = tokens.next() // consume string
+              strToken.value.asString.orElse(strToken.value.asStringName) match {
+                case Some(str) => parseStrings(acc :+ str, expectingCommaOrClose = true)
+                case None =>
+                  Left(ParseError.SyntaxError(
+                    "Expected string value in PackedStringArray",
+                    tokens.currentLine,
+                    "",
+                    Some("string"),
+                    None
+                  ))
+              }
+
+            case (false, other) =>
+              Left(ParseError.SyntaxError(
+                "Expected string in PackedStringArray",
+                tokens.currentLine,
+                "",
+                Some("string"),
+                Some(other.toString)
+              ))
+          }
         }
-      }
 
-      val token = tokens.peek()
-      if (first && token.tokenType == TokenType.ParenthesisClose) {
-        tokens.next() // consume closing paren
-        return Right(Variant.PackedStringArray(Vector.empty))
-      }
-
-      if (token.tokenType != TokenType.String && token.tokenType != TokenType.StringName) {
-        return Left(ParseError.SyntaxError(
-          "Expected string in PackedStringArray",
-          tokens.currentLine,
-          "",
-          Some("string"),
-          Some(token.tokenType.toString)
-        ))
-      }
-
-      tokens.next() // consume string
-      token.value.asString.orElse(token.value.asStringName) match {
-        case Some(str) => strings += str
-        case None =>
-          return Left(ParseError.SyntaxError(
-            "Expected string value in PackedStringArray",
-            tokens.currentLine,
-            "",
-            Some("string"),
-            None
-          ))
-      }
-
-      first = false
+      parseStrings(Vector.empty, expectingCommaOrClose = false)
     }
-
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF in PackedStringArray",
-      tokens.currentLine,
-      "",
-      Some("')'"),
-      Some("EOF")
-    ))
-  }
 
   private def parsePackedVector2Array(tokens: TokenIterator): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector2Array", allowFloat = true).flatMap { numbers =>
@@ -551,313 +550,299 @@ object ConstructParser {
     tokens: TokenIterator,
     arrayType: String,
     allowFloat: Boolean = false
-  ): ParseResult[Vector[Double]] = {
-    // Expect opening parenthesis
+  ): ParseResult[Vector[Double]] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         s"Expected '(' for $arrayType",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
-
-    val numbers = scala.collection.mutable.ArrayBuffer[Double]()
-    var first = true
-
-    while (tokens.hasNext) {
-      if (!first) {
-        val token = tokens.peek()
-        if (token.tokenType == TokenType.Comma) {
-          tokens.next() // consume comma
-        } else if (token.tokenType == TokenType.ParenthesisClose) {
-          tokens.next() // consume closing paren
-          return Right(numbers.toVector)
-        } else {
-          return Left(ParseError.SyntaxError(
-            s"Expected ',' or ')' in $arrayType",
+    } else {
+      @scala.annotation.tailrec
+      def parseNumbers(acc: Vector[Double], expectingCommaOrClose: Boolean): ParseResult[Vector[Double]] =
+        if (!tokens.hasNext) {
+          Left(ParseError.SyntaxError(
+            s"Unexpected EOF in $arrayType",
             tokens.currentLine,
             "",
-            Some("',' or ')'"),
-            Some(token.tokenType.toString)
+            Some("')'"),
+            Some("EOF")
           ))
+        } else {
+          val token = tokens.peek()
+          (expectingCommaOrClose, token.tokenType) match {
+            // Empty array case
+            case (false, TokenType.ParenthesisClose) if acc.isEmpty =>
+              tokens.next() // consume closing paren
+              Right(Vector.empty)
+
+            // After parsing a number, expect comma or closing paren
+            case (true, TokenType.Comma) =>
+              tokens.next() // consume comma
+              parseNumbers(acc, expectingCommaOrClose = false)
+
+            case (true, TokenType.ParenthesisClose) =>
+              tokens.next() // consume closing paren
+              Right(acc)
+
+            case (true, other) =>
+              Left(ParseError.SyntaxError(
+                s"Expected ',' or ')' in $arrayType",
+                tokens.currentLine,
+                "",
+                Some("',' or ')'"),
+                Some(other.toString)
+              ))
+
+            // Expecting a number
+            case (false, TokenType.Number) =>
+              val numToken = tokens.next() // consume number
+              val numResult = if (allowFloat) {
+                numToken.value.asFloat.toRight(ParseError.SyntaxError(
+                  s"Expected numeric value in $arrayType",
+                  tokens.currentLine,
+                  "",
+                  Some("number"),
+                  None
+                ))
+              } else {
+                numToken.value.asInt.map(_.toDouble).toRight(ParseError.SyntaxError(
+                  s"Expected integer value in $arrayType",
+                  tokens.currentLine,
+                  "",
+                  Some("integer"),
+                  None
+                ))
+              }
+
+              numResult match {
+                case Right(num) => parseNumbers(acc :+ num, expectingCommaOrClose = true)
+                case Left(err) => Left(err)
+              }
+
+            case (false, other) =>
+              Left(ParseError.SyntaxError(
+                s"Expected number in $arrayType",
+                tokens.currentLine,
+                "",
+                Some("number"),
+                Some(other.toString)
+              ))
+          }
         }
-      }
 
-      val token = tokens.peek()
-      if (first && token.tokenType == TokenType.ParenthesisClose) {
-        tokens.next() // consume closing paren
-        return Right(Vector.empty)
-      }
-
-      if (token.tokenType != TokenType.Number) {
-        return Left(ParseError.SyntaxError(
-          s"Expected number in $arrayType",
-          tokens.currentLine,
-          "",
-          Some("number"),
-          Some(token.tokenType.toString)
-        ))
-      }
-
-      tokens.next() // consume number
-      if (allowFloat) {
-        token.value.asFloat match {
-          case Some(num) => numbers += num
-          case None =>
-            return Left(ParseError.SyntaxError(
-              s"Expected numeric value in $arrayType",
-              tokens.currentLine,
-              "",
-              Some("number"),
-              None
-            ))
-        }
-      } else {
-        token.value.asInt match {
-          case Some(num) => numbers += num.toDouble
-          case None =>
-            return Left(ParseError.SyntaxError(
-              s"Expected integer value in $arrayType",
-              tokens.currentLine,
-              "",
-              Some("integer"),
-              None
-            ))
-        }
-      }
-
-      first = false
+      parseNumbers(Vector.empty, expectingCommaOrClose = false)
     }
-
-    Left(ParseError.SyntaxError(
-      s"Unexpected EOF in $arrayType",
-      tokens.currentLine,
-      "",
-      Some("')'"),
-      Some("EOF")
-    ))
-  }
 
   private def parseCommaSeparatedNumbers(tokens: TokenIterator): ParseResult[Vector[Long]] = {
-    val numbers = scala.collection.mutable.ArrayBuffer[Long]()
-    var first = true
-
-    while (tokens.hasNext) {
-      if (!first) {
-        val token = tokens.peek()
-        if (token.tokenType == TokenType.Comma) {
-          tokens.next() // consume comma
-        } else if (token.tokenType == TokenType.ParenthesisClose) {
-          tokens.next() // consume closing paren
-          return Right(numbers.toVector)
-        } else {
-          return Left(ParseError.SyntaxError(
-            "Expected ',' or ')' after number",
-            tokens.currentLine,
-            "",
-            Some("',' or ')'"),
-            Some(token.tokenType.toString)
-          ))
-        }
-      }
-
+    @scala.annotation.tailrec
+    def parseNumbers(acc: Vector[Long], expectingCommaOrClose: Boolean): ParseResult[Vector[Long]] =
       if (!tokens.hasNext) {
-        return Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError(
           "Unexpected EOF while parsing numbers",
           tokens.currentLine,
           "",
-          Some("number"),
+          Some("')'"),
           Some("EOF")
         ))
+      } else {
+        tokens.peek().tokenType match {
+          // After parsing a number, expect comma or closing paren
+          case TokenType.Comma if expectingCommaOrClose =>
+            tokens.next() // consume comma
+            parseNumbers(acc, expectingCommaOrClose = false)
+
+          case TokenType.ParenthesisClose if expectingCommaOrClose =>
+            tokens.next() // consume closing paren
+            Right(acc)
+
+          case other if expectingCommaOrClose =>
+            Left(ParseError.SyntaxError(
+              "Expected ',' or ')' after number",
+              tokens.currentLine,
+              "",
+              Some("',' or ')'"),
+              Some(other.toString)
+            ))
+
+          // Expecting a number
+          case TokenType.Number if !expectingCommaOrClose =>
+            val token = tokens.next() // consume number
+            token.value.asInt match {
+              case Some(num) =>
+                parseNumbers(acc :+ num, expectingCommaOrClose = true)
+              case None =>
+                Left(ParseError.SyntaxError(
+                  "Expected numeric value",
+                  tokens.currentLine,
+                  "",
+                  Some("number"),
+                  None
+                ))
+            }
+
+          case other =>
+            Left(ParseError.SyntaxError(
+              "Expected number",
+              tokens.currentLine,
+              "",
+              Some("number"),
+              Some(other.toString)
+            ))
+        }
       }
 
-      val token = tokens.peek()
-      if (token.tokenType != TokenType.Number) {
-        return Left(ParseError.SyntaxError(
-          "Expected number",
-          tokens.currentLine,
-          "",
-          Some("number"),
-          Some(token.tokenType.toString)
-        ))
-      }
-
-      tokens.next() // consume number
-      token.value.asInt match {
-        case Some(num) => numbers += num
-        case None =>
-          return Left(ParseError.SyntaxError(
-            "Expected numeric value",
-            tokens.currentLine,
-            "",
-            Some("number"),
-            None
-          ))
-      }
-
-      first = false
-    }
-
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF while parsing numbers",
-      tokens.currentLine,
-      "",
-      Some("')'"),
-      Some("EOF")
-    ))
+    parseNumbers(Vector.empty, expectingCommaOrClose = false)
   }
 
   private def parseArguments(tokens: TokenIterator, expectedCount: Int): ParseResult[Vector[Variant]] =
     parseArguments(tokens, expectedCount, expectedCount)
 
-  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int): ParseResult[Vector[Variant]] = {
-    val args = scala.collection.mutable.ArrayBuffer[Variant]()
-
+  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int): ParseResult[Vector[Variant]] =
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '(' to start construct arguments",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
-
-    // Parse arguments
-    while (tokens.hasNext) {
-      val token = tokens.peek()
-
-      if (token.tokenType == TokenType.ParenthesisClose) {
-        tokens.next() // consume closing paren
-        if (args.length < minCount || args.length > maxCount) {
-          val expectedRange = if (minCount == maxCount) s"$minCount" else s"$minCount-$maxCount"
-          return Left(ParseError.SyntaxError(
-            s"Expected $expectedRange arguments, got ${args.length}",
+    } else {
+      @scala.annotation.tailrec
+      def parseArgs(acc: Vector[Variant]): ParseResult[Vector[Variant]] =
+        if (!tokens.hasNext) {
+          Left(ParseError.SyntaxError(
+            "Unexpected EOF in construct arguments",
             tokens.currentLine,
             "",
-            Some(s"$expectedRange arguments"),
-            Some(s"${args.length} arguments")
+            Some("')'"),
+            Some("EOF")
           ))
-        }
-        return Right(args.toVector)
-      }
+        } else {
+          tokens.peek().tokenType match {
+            case TokenType.ParenthesisClose =>
+              tokens.next() // consume closing paren
+              val expectedRange = if (minCount == maxCount) s"$minCount" else s"$minCount-$maxCount"
+              if (acc.length < minCount || acc.length > maxCount) {
+                Left(ParseError.SyntaxError(
+                  s"Expected $expectedRange arguments, got ${acc.length}",
+                  tokens.currentLine,
+                  "",
+                  Some(s"$expectedRange arguments"),
+                  Some(s"${acc.length} arguments")
+                ))
+              } else {
+                Right(acc)
+              }
 
-      // Parse value
-      VariantParser.parseValue(tokens) match {
-        case Right(value) =>
-          args += value
-
-          // Check for comma or closing paren
-          if (tokens.hasNext) {
-            val next = tokens.peek()
-            if (next.tokenType == TokenType.Comma) {
-              tokens.next() // consume comma
-            } else if (next.tokenType != TokenType.ParenthesisClose) {
-              return Left(ParseError.SyntaxError(
-                "Expected ',' or ')' after argument",
-                tokens.currentLine,
-                "",
-                Some("',' or ')'"),
-                Some(next.tokenType.toString)
-              ))
-            }
+            case _ =>
+              VariantParser.parseValue(tokens) match {
+                case Left(err) => Left(err)
+                case Right(value) =>
+                  if (!tokens.hasNext) {
+                    Left(ParseError.SyntaxError(
+                      "Unexpected EOF after argument",
+                      tokens.currentLine,
+                      "",
+                      Some("',' or ')'"),
+                      Some("EOF")
+                    ))
+                  } else {
+                    tokens.peek().tokenType match {
+                      case TokenType.Comma =>
+                        tokens.next() // consume comma
+                        parseArgs(acc :+ value)
+                      case TokenType.ParenthesisClose =>
+                        parseArgs(acc :+ value)
+                      case other =>
+                        Left(ParseError.SyntaxError(
+                          "Expected ',' or ')' after argument",
+                          tokens.currentLine,
+                          "",
+                          Some("',' or ')'"),
+                          Some(other.toString)
+                        ))
+                    }
+                  }
+              }
           }
+        }
 
-        case Left(err) => return Left(err)
-      }
+      parseArgs(Vector.empty)
     }
 
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF in construct arguments",
-      tokens.currentLine,
-      "",
-      Some("')'"),
-      Some("EOF")
-    ))
-  }
-
-  private def parseArrayArgument(tokens: TokenIterator): ParseResult[Variant.Array] = {
-    // Expect opening parenthesis
+  private def parseArrayArgument(tokens: TokenIterator): ParseResult[Variant.Array] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '(' for packed array argument",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
+    } else {
+      VariantParser.parseValue(tokens).flatMap {
+        case Variant.Array(elements, typed) =>
+          if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
+            Left(ParseError.SyntaxError(
+              "Expected ')' after packed array argument",
+              tokens.currentLine,
+              "",
+              Some(")"),
+              None
+            ))
+          } else {
+            Right(Variant.Array(elements, typed))
+          }
 
-    // Parse array
-    VariantParser.parseValue(tokens) match {
-      case Right(Variant.Array(elements, typed)) =>
-        // Expect closing parenthesis
-        if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-          return Left(ParseError.SyntaxError(
-            "Expected ')' after packed array argument",
+        case other =>
+          Left(ParseError.SyntaxError(
+            s"Expected array argument, got ${other.getClass.getSimpleName}",
             tokens.currentLine,
-            "",
-            Some(")"),
-            None
+            s"Received value: $other",
+            Some("Array"),
+            Some(other.getClass.getSimpleName)
           ))
-        }
-        Right(Variant.Array(elements, typed))
-
-      case Right(other) =>
-        Left(ParseError.SyntaxError(
-          s"Expected array argument, got ${other.getClass.getSimpleName}",
-          tokens.currentLine,
-          s"Received value: $other",
-          Some("Array"),
-          Some(other.getClass.getSimpleName)
-        ))
-
-      case Left(err) => Left(err)
+      }
     }
-  }
 
-  private def parseDictionaryArgument(tokens: TokenIterator): ParseResult[Variant.Dictionary] = {
-    // Expect opening parenthesis
+  private def parseDictionaryArgument(tokens: TokenIterator): ParseResult[Variant.Dictionary] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '(' for dictionary argument",
         tokens.currentLine,
         "",
         Some("("),
         None
       ))
-    }
+    } else {
+      VariantParser.parseValue(tokens).flatMap {
+        case Variant.Dictionary(entries, typed) =>
+          if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
+            Left(ParseError.SyntaxError(
+              "Expected ')' after dictionary argument",
+              tokens.currentLine,
+              "",
+              Some(")"),
+              None
+            ))
+          } else {
+            Right(Variant.Dictionary(entries, typed))
+          }
 
-    // Parse dictionary
-    VariantParser.parseValue(tokens) match {
-      case Right(Variant.Dictionary(entries, typed)) =>
-        // Expect closing parenthesis
-        if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-          return Left(ParseError.SyntaxError(
-            "Expected ')' after dictionary argument",
+        case other =>
+          Left(ParseError.SyntaxError(
+            s"Expected dictionary argument, got ${other.getClass.getSimpleName}",
             tokens.currentLine,
             "",
-            Some(")"),
-            None
+            Some("Dictionary"),
+            Some(other.getClass.getSimpleName)
           ))
-        }
-        Right(Variant.Dictionary(entries, typed))
-
-      case Right(other) =>
-        Left(ParseError.SyntaxError(
-          s"Expected dictionary argument, got ${other.getClass.getSimpleName}",
-          tokens.currentLine,
-          "",
-          Some("Dictionary"),
-          Some(other.getClass.getSimpleName)
-        ))
-
-      case Left(err) => Left(err)
+      }
     }
-  }
 
   private def invalidArgError(construct: String, index: Int, expected: String): ParseError =
     ParseError.SyntaxError(

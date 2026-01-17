@@ -5,132 +5,100 @@ import io.github.optical002.godot.parser.model.{ConnectionData, ExtResource, Nod
 
 object SceneAssembler {
 
-  def assemble(tags: Vector[Tag]): ParseResult[PackedScene] = {
-    // First tag should be [gd_scene ...]
+  def assemble(tags: Vector[Tag]): ParseResult[PackedScene] =
     if (tags.isEmpty) {
-      return Left(ParseError.SemanticError(
+      Left(ParseError.SemanticError(
         "Empty file - expected [gd_scene] header",
         0,
         "",
         Map.empty
       ))
-    }
+    } else {
+      val headerTag = tags.head
+      if (headerTag.name != "gd_scene") {
+        Left(ParseError.SemanticError(
+          s"Expected [gd_scene] header, got [${headerTag.name}]",
+          headerTag.line,
+          "",
+          Map("expected" -> "gd_scene", "actual" -> headerTag.name)
+        ))
+      } else {
+        val loadSteps = headerTag.fields.get("load_steps").flatMap(_.asInt).map(_.toInt).getOrElse(0)
+        val format = headerTag.fields.get("format").flatMap(_.asInt).map(_.toInt).getOrElse(3)
+        val uid = headerTag.fields.get("uid").flatMap(_.asString)
 
-    val headerTag = tags.head
-    if (headerTag.name != "gd_scene") {
-      return Left(ParseError.SemanticError(
-        s"Expected [gd_scene] header, got [${headerTag.name}]",
-        headerTag.line,
-        "",
-        Map("expected" -> "gd_scene", "actual" -> headerTag.name)
-      ))
-    }
-
-    // Extract header fields
-    val loadSteps = headerTag.fields.get("load_steps").flatMap(_.asInt).map(_.toInt).getOrElse(0)
-    val format = headerTag.fields.get("format").flatMap(_.asInt).map(_.toInt).getOrElse(3)
-    val uid = headerTag.fields.get("uid").flatMap(_.asString)
-
-    // Parse remaining tags
-    val extResources = Vector.newBuilder[ExtResource]
-    val subResources = Vector.newBuilder[SubResource]
-    val nodes = Vector.newBuilder[NodeData]
-    val connections = Vector.newBuilder[ConnectionData]
-    val editableInstances = Vector.newBuilder[String]
-
-    for (tag <- tags.tail)
-      tag.name match {
-        case "ext_resource" =>
-          parseExtResource(tag) match {
-            case Right(extRes) => extResources += extRes
-            case Left(err) => return Left(err)
-          }
-
-        case "sub_resource" =>
-          parseSubResource(tag) match {
-            case Right(subRes) => subResources += subRes
-            case Left(err) => return Left(err)
-          }
-
-        case "node" =>
-          parseNode(tag) match {
-            case Right(node) => nodes += node
-            case Left(err) => return Left(err)
-          }
-
-        case "connection" =>
-          parseConnection(tag) match {
-            case Right(conn) => connections += conn
-            case Left(err) => return Left(err)
-          }
-
-        case "editable" =>
-          tag.fields.get("path").flatMap(_.asString) match {
-            case Some(path) => editableInstances += path
-            case None =>
-              return Left(ParseError.SemanticError(
-                "editable tag missing 'path' field",
+        def parseTag(tag: Tag): ParseResult[Either[String, (String, Any)]] =
+          tag.name match {
+            case "ext_resource" => parseExtResource(tag).map(r => Right(("ext_resource", r)))
+            case "sub_resource" => parseSubResource(tag).map(r => Right(("sub_resource", r)))
+            case "node" => parseNode(tag).map(r => Right(("node", r)))
+            case "connection" => parseConnection(tag).map(r => Right(("connection", r)))
+            case "editable" =>
+              tag.fields.get("path").flatMap(_.asString).toRight(
+                ParseError.SemanticError(
+                  "editable tag missing 'path' field",
+                  tag.line,
+                  "",
+                  Map.empty
+                )
+              ).map(path => Right(("editable", path)))
+            case other =>
+              Left(ParseError.SemanticError(
+                s"Unexpected tag in .tscn file: [$other]",
                 tag.line,
                 "",
-                Map.empty
+                Map("tag" -> other)
               ))
           }
 
-        case other =>
-          return Left(ParseError.SemanticError(
-            s"Unexpected tag in .tscn file: [$other]",
-            tag.line,
-            "",
-            Map("tag" -> other)
-          ))
+        tags.tail.foldLeft[ParseResult[(Vector[ExtResource], Vector[SubResource], Vector[NodeData], Vector[ConnectionData], Vector[String])]](
+          Right((Vector.empty, Vector.empty, Vector.empty, Vector.empty, Vector.empty))
+        ) { (acc, tag) =>
+          acc.flatMap { case (extRes, subRes, nodes, conns, editables) =>
+            parseTag(tag).map {
+              case Right(("ext_resource", r: ExtResource)) => (extRes :+ r, subRes, nodes, conns, editables)
+              case Right(("sub_resource", r: SubResource)) => (extRes, subRes :+ r, nodes, conns, editables)
+              case Right(("node", n: NodeData)) => (extRes, subRes, nodes :+ n, conns, editables)
+              case Right(("connection", c: ConnectionData)) => (extRes, subRes, nodes, conns :+ c, editables)
+              case Right(("editable", path: String)) => (extRes, subRes, nodes, conns, editables :+ path)
+              case _ => (extRes, subRes, nodes, conns, editables)
+            }
+          }
+        }.map { case (extRes, subRes, nodes, conns, editables) =>
+          PackedScene(loadSteps, format, uid, extRes, subRes, nodes, conns, editables)
+        }
       }
+    }
 
-    Right(PackedScene(
-      loadSteps = loadSteps,
-      format = format,
-      uid = uid,
-      extResources = extResources.result(),
-      subResources = subResources.result(),
-      nodes = nodes.result(),
-      connections = connections.result(),
-      editableInstances = editableInstances.result()
-    ))
-  }
-
-  private def parseExtResource(tag: Tag): ParseResult[ExtResource] = {
-    val id = tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).getOrElse {
-      return Left(ParseError.SemanticError(
+  private def parseExtResource(tag: Tag): ParseResult[ExtResource] =
+    tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
+      ParseError.SemanticError(
         "ext_resource missing 'id' field",
         tag.line,
         "",
         Map.empty
-      ))
+      )
+    ).map { id =>
+      val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
+      val path = tag.fields.get("path").flatMap(_.asString).getOrElse("")
+      val uid = tag.fields.get("uid").flatMap(_.asString)
+      ExtResource(id, resourceType, path, uid)
     }
 
-    val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
-    val path = tag.fields.get("path").flatMap(_.asString).getOrElse("")
-    val uid = tag.fields.get("uid").flatMap(_.asString)
-
-    Right(ExtResource(id, resourceType, path, uid))
-  }
-
-  private def parseSubResource(tag: Tag): ParseResult[SubResource] = {
-    val id = tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).getOrElse {
-      return Left(ParseError.SemanticError(
+  private def parseSubResource(tag: Tag): ParseResult[SubResource] =
+    tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
+      ParseError.SemanticError(
         "sub_resource missing 'id' field",
         tag.line,
         "",
         Map.empty
-      ))
+      )
+    ).map { id =>
+      val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
+      // Remove metadata fields from properties
+      val properties = tag.fields - "id" - "type"
+      SubResource(id, resourceType, properties)
     }
-
-    val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
-
-    // Remove metadata fields from properties
-    val properties = tag.fields - "id" - "type"
-
-    Right(SubResource(id, resourceType, properties))
-  }
 
   private def parseNode(tag: Tag): ParseResult[NodeData] = {
     val nameResult = tag.fields.get("name").flatMap(_.asString).toRight {
@@ -195,66 +163,51 @@ object SceneAssembler {
     }
   }
 
-  private def parseConnection(tag: Tag): ParseResult[ConnectionData] = {
-    val signal = tag.fields.get("signal").flatMap(_.asString).getOrElse {
-      return Left(ParseError.SemanticError(
-        "connection missing 'signal' field",
-        tag.line,
-        "",
-        Map.empty
-      ))
+  private def parseConnection(tag: Tag): ParseResult[ConnectionData] =
+    for {
+      signal <- tag.fields.get("signal").flatMap(_.asString).toRight(
+        ParseError.SemanticError(
+          "connection missing 'signal' field",
+          tag.line,
+          "",
+          Map.empty
+        )
+      )
+      from <- tag.fields.get("from").flatMap(_.asString).toRight(
+        ParseError.SemanticError(
+          "connection missing 'from' field",
+          tag.line,
+          "",
+          Map.empty
+        )
+      )
+      to <- tag.fields.get("to").flatMap(_.asString).toRight(
+        ParseError.SemanticError(
+          "connection missing 'to' field",
+          tag.line,
+          "",
+          Map.empty
+        )
+      )
+      method <- tag.fields.get("method").flatMap(_.asString).toRight(
+        ParseError.SemanticError(
+          "connection missing 'method' field",
+          tag.line,
+          "",
+          Map.empty
+        )
+      )
+    } yield {
+      val flags = tag.fields.get("flags").flatMap(_.asInt).map(_.toInt).getOrElse(0)
+      val unbinds = tag.fields.get("unbinds").flatMap(_.asInt).map(_.toInt).getOrElse(0)
+      val binds = tag.fields.get("binds").flatMap(_.asArray).getOrElse(Vector.empty)
+      val fromIdPath = tag.fields.get("from_uid_path").flatMap(_.asArray).map(arr =>
+        arr.flatMap(_.asInt).map(_.toInt)
+      ).getOrElse(Vector.empty)
+      val toIdPath = tag.fields.get("to_uid_path").flatMap(_.asArray).map(arr =>
+        arr.flatMap(_.asInt).map(_.toInt)
+      ).getOrElse(Vector.empty)
+
+      ConnectionData(signal, from, fromIdPath, to, toIdPath, method, flags, binds, unbinds)
     }
-
-    val from = tag.fields.get("from").flatMap(_.asString).getOrElse {
-      return Left(ParseError.SemanticError(
-        "connection missing 'from' field",
-        tag.line,
-        "",
-        Map.empty
-      ))
-    }
-
-    val to = tag.fields.get("to").flatMap(_.asString).getOrElse {
-      return Left(ParseError.SemanticError(
-        "connection missing 'to' field",
-        tag.line,
-        "",
-        Map.empty
-      ))
-    }
-
-    val method = tag.fields.get("method").flatMap(_.asString).getOrElse {
-      return Left(ParseError.SemanticError(
-        "connection missing 'method' field",
-        tag.line,
-        "",
-        Map.empty
-      ))
-    }
-
-    val flags = tag.fields.get("flags").flatMap(_.asInt).map(_.toInt).getOrElse(0)
-    val unbinds = tag.fields.get("unbinds").flatMap(_.asInt).map(_.toInt).getOrElse(0)
-
-    val binds = tag.fields.get("binds").flatMap(_.asArray).getOrElse(Vector.empty)
-
-    val fromIdPath = tag.fields.get("from_uid_path").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asInt).map(_.toInt)
-    }.getOrElse(Vector.empty)
-
-    val toIdPath = tag.fields.get("to_uid_path").flatMap(_.asArray).map { arr =>
-      arr.flatMap(_.asInt).map(_.toInt)
-    }.getOrElse(Vector.empty)
-
-    Right(ConnectionData(
-      signal = signal,
-      from = from,
-      fromIdPath = fromIdPath,
-      to = to,
-      toIdPath = toIdPath,
-      method = method,
-      flags = flags,
-      binds = binds,
-      unbinds = unbinds
-    ))
-  }
 }

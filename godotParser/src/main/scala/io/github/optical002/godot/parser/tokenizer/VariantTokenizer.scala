@@ -387,20 +387,20 @@ class VariantTokenizer(stream: CharStream) {
   }
 
   private def parseIdentifier(): ParseResult[(TokenType, Variant)] = {
-    val ident = new StringBuilder()
-
-    var done = false
-    while (!stream.isEof && !done) {
-      val c = stream.getChar()
-      if (c.isLetterOrDigit || c == '_') {
-        ident.append(c)
-      } else {
-        stream.saveChar(c)
-        done = true
+    @scala.annotation.tailrec
+    def collectChars(acc: String): String =
+      if (stream.isEof) acc
+      else {
+        val c = stream.getChar()
+        if (c.isLetterOrDigit || c == '_' || c == '/') {
+          collectChars(acc + c)
+        } else {
+          stream.saveChar(c)
+          acc
+        }
       }
-    }
 
-    Right((TokenType.Identifier, Variant.String(ident.toString)))
+    Right((TokenType.Identifier, Variant.String(collectChars(""))))
   }
 
   private def isHexDigit(c: Char): Boolean =

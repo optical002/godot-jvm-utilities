@@ -6,8 +6,8 @@ enum Variant {
   case Bool(value: Boolean)
   case Int(value: Long)
   case Float(value: Double)
-  case String(value: java.lang.String)
-  case StringName(value: java.lang.String)
+  case String(value: String)
+  case StringName(value: String)
 
   // Math - 2D (4 types)
   case Vector2(x: Double, y: Double)

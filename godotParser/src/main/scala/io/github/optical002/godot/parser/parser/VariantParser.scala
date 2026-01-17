@@ -9,208 +9,180 @@ object VariantParser {
     val stream = CharStream(content)
     val tokenizer = VariantTokenizer(stream)
 
-    // Collect all tokens
-    val tokensBuilder = Vector.newBuilder[Token]
-    var continue = true
-    while (continue)
+    @scala.annotation.tailrec
+    def collectTokens(acc: Vector[Token]): ParseResult[Vector[Token]] =
       tokenizer.getToken() match {
+        case Left(err) => Left(err)
         case Right(token) =>
           if (token.tokenType == TokenType.EOF) {
-            continue = false
+            Right(acc)
           } else {
-            tokensBuilder += token
+            collectTokens(acc :+ token)
           }
-        case Left(err) => return Left(err)
       }
 
-    val tokens = new TokenIterator(tokensBuilder.result())
-    parseTags(tokens)
+    collectTokens(Vector.empty).flatMap { tokens =>
+      parseTags(new TokenIterator(tokens))
+    }
   }
 
   def parseTags(tokens: TokenIterator): ParseResult[Vector[Tag]] = {
-    val tags = Vector.newBuilder[Tag]
-
-    while (tokens.hasNext)
-      parseTagWithProperties(tokens) match {
-        case Right(tag) => tags += tag
-        case Left(err) => return Left(err)
+    @scala.annotation.tailrec
+    def collectTags(acc: Vector[Tag]): ParseResult[Vector[Tag]] =
+      if (!tokens.hasNext) {
+        Right(acc)
+      } else {
+        parseTagWithProperties(tokens) match {
+          case Left(err) => Left(err)
+          case Right(tag) => collectTags(acc :+ tag)
+        }
       }
 
-    Right(tags.result())
+    collectTags(Vector.empty)
   }
 
   def parseTagWithProperties(tokens: TokenIterator): ParseResult[Tag] =
-    // Parse the tag itself
-    parseTag(tokens) match {
-      case Right(tag) =>
-        // Parse following property assignments
-        val properties = scala.collection.mutable.Map[String, Variant]()
-
-        while (tokens.hasNext) {
-          val token = tokens.peek()
-
-          // Check if next token is a tag
-          if (token.tokenType == TokenType.BracketOpen) {
-            // Next tag, return current tag with properties
-            return Right(tag.copy(fields = tag.fields ++ properties.toMap))
-          }
-
-          // Parse property assignment
+    parseTag(tokens).flatMap { tag =>
+      @scala.annotation.tailrec
+      def parseProperties(acc: Map[String, Variant]): ParseResult[Tag] =
+        if (!tokens.hasNext || tokens.peek().tokenType == TokenType.BracketOpen) {
+          Right(tag.copy(fields = tag.fields ++ acc))
+        } else {
           parsePropertyAssignment(tokens) match {
-            case Right((key, value)) =>
-              properties(key) = value
-            case Left(err) => return Left(err)
+            case Left(err) => Left(err)
+            case Right((key, value)) => parseProperties(acc + (key -> value))
           }
         }
 
-        // End of file
-        Right(tag.copy(fields = tag.fields ++ properties.toMap))
-
-      case Left(err) => Left(err)
+      parseProperties(Map.empty)
     }
 
   def parseTag(tokens: TokenIterator): ParseResult[Tag] = {
     val startLine = tokens.currentLine
 
-    // Expect opening bracket
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.BracketOpen) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected '[' to start tag",
         startLine,
         "",
         Some("["),
         None
       ))
-    }
-
-    // Parse tag name
-    if (!tokens.hasNext) {
-      return Left(ParseError.SyntaxError(
+    } else if (!tokens.hasNext) {
+      Left(ParseError.SyntaxError(
         "Expected tag name after '['",
         startLine,
         "",
         Some("identifier"),
         Some("EOF")
       ))
-    }
-
-    val nameToken = tokens.next()
-    val tagName = nameToken.value.asString.orElse(nameToken.value.asStringName).getOrElse {
-      return Left(ParseError.SyntaxError(
-        s"Expected identifier for tag name, got ${nameToken.tokenType}",
-        nameToken.line,
-        "",
-        Some("identifier"),
-        Some(nameToken.tokenType.toString)
-      ))
-    }
-
-    // Parse tag fields (key=value pairs)
-    val fields = scala.collection.mutable.Map[String, Variant]()
-
-    while (tokens.hasNext) {
-      val token = tokens.peek()
-
-      if (token.tokenType == TokenType.BracketClose) {
-        tokens.next() // consume closing bracket
-        return Right(Tag(tagName, fields.toMap, startLine))
-      }
-
-      // Parse field key
-      val keyToken = tokens.next()
-      val key = keyToken.value.asString.orElse(keyToken.value.asStringName).getOrElse {
-        return Left(ParseError.SyntaxError(
-          s"Expected identifier for field key, got ${keyToken.tokenType}",
-          keyToken.line,
+    } else {
+      val nameToken = tokens.next()
+      nameToken.value.asString.orElse(nameToken.value.asStringName).toRight(
+        ParseError.SyntaxError(
+          s"Expected identifier for tag name, got ${nameToken.tokenType}",
+          nameToken.line,
           "",
           Some("identifier"),
-          Some(keyToken.tokenType.toString)
-        ))
-      }
+          Some(nameToken.tokenType.toString)
+        )
+      ).flatMap { tagName =>
+        @scala.annotation.tailrec
+        def parseFields(acc: Map[String, Variant]): ParseResult[Tag] =
+          if (!tokens.hasNext) {
+            Left(ParseError.SyntaxError(
+              "Unexpected EOF in tag",
+              tokens.currentLine,
+              "",
+              Some("]"),
+              Some("EOF")
+            ))
+          } else if (tokens.peek().tokenType == TokenType.BracketClose) {
+            tokens.next() // consume closing bracket
+            Right(Tag(tagName, acc, startLine))
+          } else {
+            val keyToken = tokens.next()
+            keyToken.value.asString.orElse(keyToken.value.asStringName) match {
+              case None =>
+                Left(ParseError.SyntaxError(
+                  s"Expected identifier for field key, got ${keyToken.tokenType}",
+                  keyToken.line,
+                  "",
+                  Some("identifier"),
+                  Some(keyToken.tokenType.toString)
+                ))
+              case Some(key) =>
+                if (!tokens.hasNext || tokens.next().tokenType != TokenType.Equal) {
+                  Left(ParseError.SyntaxError(
+                    "Expected '=' after field key",
+                    tokens.currentLine,
+                    "",
+                    Some("="),
+                    None
+                  ))
+                } else {
+                  parseValue(tokens) match {
+                    case Left(err) => Left(err)
+                    case Right(value) => parseFields(acc + (key -> value))
+                  }
+                }
+            }
+          }
 
-      // Expect equals
-      if (!tokens.hasNext || tokens.next().tokenType != TokenType.Equal) {
-        return Left(ParseError.SyntaxError(
-          "Expected '=' after field key",
-          tokens.currentLine,
-          "",
-          Some("="),
-          None
-        ))
-      }
-
-      // Parse field value
-      parseValue(tokens) match {
-        case Right(value) =>
-          fields(key) = value
-        case Left(err) => return Left(err)
+        parseFields(Map.empty)
       }
     }
-
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF in tag",
-      tokens.currentLine,
-      "",
-      Some("]"),
-      Some("EOF")
-    ))
   }
 
-  def parsePropertyAssignment(tokens: TokenIterator): ParseResult[(String, Variant)] = {
+  def parsePropertyAssignment(tokens: TokenIterator): ParseResult[(String, Variant)] =
     if (!tokens.hasNext) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected property key",
         0,
         "",
         Some("identifier"),
         Some("EOF")
       ))
+    } else {
+      val keyToken = tokens.next()
+      for {
+        key <- keyToken.value.asString.orElse(keyToken.value.asStringName).toRight(
+          ParseError.SyntaxError(
+            s"Expected identifier for property key, got ${keyToken.tokenType}",
+            keyToken.line,
+            "",
+            Some("identifier"),
+            Some(keyToken.tokenType.toString)
+          )
+        )
+        _ <- if (tokens.hasNext && tokens.next().tokenType == TokenType.Equal) {
+          Right(())
+        } else {
+          Left(ParseError.SyntaxError(
+            "Expected '=' after property key",
+            tokens.currentLine,
+            "",
+            Some("="),
+            None
+          ))
+        }
+        value <- parseValue(tokens)
+      } yield (key, value)
     }
 
-    // Parse property key
-    val keyToken = tokens.next()
-    val key = keyToken.value.asString.orElse(keyToken.value.asStringName).getOrElse {
-      return Left(ParseError.SyntaxError(
-        s"Expected identifier for property key, got ${keyToken.tokenType}",
-        keyToken.line,
-        "",
-        Some("identifier"),
-        Some(keyToken.tokenType.toString)
-      ))
-    }
-
-    // Expect equals
-    if (!tokens.hasNext || tokens.next().tokenType != TokenType.Equal) {
-      return Left(ParseError.SyntaxError(
-        "Expected '=' after property key",
-        tokens.currentLine,
-        "",
-        Some("="),
-        None
-      ))
-    }
-
-    // Parse property value
-    parseValue(tokens) match {
-      case Right(value) => Right((key, value))
-      case Left(err) => Left(err)
-    }
-  }
-
-  def parseValue(tokens: TokenIterator): ParseResult[Variant] = {
+  def parseValue(tokens: TokenIterator): ParseResult[Variant] =
     if (!tokens.hasNext) {
-      return Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError(
         "Expected value",
         0,
         "",
         Some("value"),
         Some("EOF")
       ))
-    }
+    } else {
+      val token = tokens.peek()
 
-    val token = tokens.peek()
-
-    token.tokenType match {
+      token.tokenType match {
       // Direct values from tokenizer
       case TokenType.String | TokenType.StringName | TokenType.Number | TokenType.Color =>
         Right(tokens.next().value)
@@ -259,125 +231,126 @@ object VariantParser {
           Some("value"),
           Some(other.toString)
         ))
+      }
     }
-  }
 
   def parseArray(tokens: TokenIterator): ParseResult[Variant] = {
     val startLine = tokens.currentLine
+    tokens.next() // Consume opening bracket
 
-    // Consume opening bracket
-    tokens.next()
-
-    val elements = Vector.newBuilder[Variant]
-
-    while (tokens.hasNext) {
-      val token = tokens.peek()
-
-      if (token.tokenType == TokenType.BracketClose) {
+    @scala.annotation.tailrec
+    def parseElements(acc: Vector[Variant]): ParseResult[Variant] =
+      if (!tokens.hasNext) {
+        Left(ParseError.SyntaxError(
+          "Unexpected EOF in array",
+          startLine,
+          "",
+          Some("]"),
+          Some("EOF")
+        ))
+      } else if (tokens.peek().tokenType == TokenType.BracketClose) {
         tokens.next() // consume closing bracket
-        return Right(Variant.Array(elements.result(), None))
-      }
-
-      // Parse element
-      parseValue(tokens) match {
-        case Right(value) =>
-          elements += value
-
-          // Check for comma or closing bracket
-          if (tokens.hasNext) {
-            val next = tokens.peek()
-            if (next.tokenType == TokenType.Comma) {
-              tokens.next() // consume comma
-            } else if (next.tokenType != TokenType.BracketClose) {
-              return Left(ParseError.SyntaxError(
-                "Expected ',' or ']' after array element",
-                next.line,
+        Right(Variant.Array(acc, None))
+      } else {
+        parseValue(tokens) match {
+          case Left(err) => Left(err)
+          case Right(value) =>
+            if (!tokens.hasNext) {
+              Left(ParseError.SyntaxError(
+                "Unexpected EOF after array element",
+                startLine,
                 "",
                 Some("',' or ']'"),
-                Some(next.tokenType.toString)
+                Some("EOF")
               ))
+            } else {
+              tokens.peek().tokenType match {
+                case TokenType.Comma =>
+                  tokens.next() // consume comma
+                  parseElements(acc :+ value)
+                case TokenType.BracketClose =>
+                  parseElements(acc :+ value)
+                case other =>
+                  Left(ParseError.SyntaxError(
+                    "Expected ',' or ']' after array element",
+                    tokens.peek().line,
+                    "",
+                    Some("',' or ']'"),
+                    Some(other.toString)
+                  ))
+              }
             }
-          }
-
-        case Left(err) => return Left(err)
+        }
       }
-    }
 
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF in array",
-      startLine,
-      "",
-      Some("]"),
-      Some("EOF")
-    ))
+    parseElements(Vector.empty)
   }
 
   def parseDictionary(tokens: TokenIterator): ParseResult[Variant] = {
     val startLine = tokens.currentLine
+    tokens.next() // Consume opening brace
 
-    // Consume opening brace
-    tokens.next()
-
-    val entries = scala.collection.mutable.Map[String, Variant]()
-
-    while (tokens.hasNext) {
-      val token = tokens.peek()
-
-      if (token.tokenType == TokenType.CurlyBracketClose) {
+    @scala.annotation.tailrec
+    def parseEntries(acc: Map[String, Variant]): ParseResult[Variant] =
+      if (!tokens.hasNext) {
+        Left(ParseError.SyntaxError(
+          "Unexpected EOF in dictionary",
+          startLine,
+          "",
+          Some("}"),
+          Some("EOF")
+        ))
+      } else if (tokens.peek().tokenType == TokenType.CurlyBracketClose) {
         tokens.next() // consume closing brace
-        return Right(Variant.Dictionary(entries.toMap, None))
-      }
+        Right(Variant.Dictionary(acc, None))
+      } else {
+        parseValue(tokens) match {
+          case Left(err) => Left(err)
+          case Right(keyVariant) =>
+            val key = keyVariant.asString.orElse(keyVariant.asStringName).getOrElse(keyVariant.asKey.toString)
 
-      // Parse key
-      parseValue(tokens) match {
-        case Right(keyVariant) =>
-          val key = keyVariant.asString.orElse(keyVariant.asStringName).getOrElse(keyVariant.asKey.toString)
-
-          // Expect colon
-          if (!tokens.hasNext || tokens.next().tokenType != TokenType.Colon) {
-            return Left(ParseError.SyntaxError(
-              "Expected ':' after dictionary key",
-              tokens.currentLine,
-              "",
-              Some(":"),
-              None
-            ))
-          }
-
-          // Parse value
-          parseValue(tokens) match {
-            case Right(value) =>
-              entries(key) = value
-
-              // Check for comma or closing brace
-              if (tokens.hasNext) {
-                val next = tokens.peek()
-                if (next.tokenType == TokenType.Comma) {
-                  tokens.next() // consume comma
-                } else if (next.tokenType != TokenType.CurlyBracketClose) {
-                  return Left(ParseError.SyntaxError(
-                    "Expected ',' or '}' after dictionary entry",
-                    next.line,
-                    "",
-                    Some("',' or '}'"),
-                    Some(next.tokenType.toString)
-                  ))
-                }
+            if (!tokens.hasNext || tokens.next().tokenType != TokenType.Colon) {
+              Left(ParseError.SyntaxError(
+                "Expected ':' after dictionary key",
+                tokens.currentLine,
+                "",
+                Some(":"),
+                None
+              ))
+            } else {
+              parseValue(tokens) match {
+                case Left(err) => Left(err)
+                case Right(value) =>
+                  if (!tokens.hasNext) {
+                    Left(ParseError.SyntaxError(
+                      "Unexpected EOF after dictionary value",
+                      startLine,
+                      "",
+                      Some("',' or '}'"),
+                      Some("EOF")
+                    ))
+                  } else {
+                    tokens.peek().tokenType match {
+                      case TokenType.Comma =>
+                        tokens.next() // consume comma
+                        parseEntries(acc + (key -> value))
+                      case TokenType.CurlyBracketClose =>
+                        parseEntries(acc + (key -> value))
+                      case other =>
+                        Left(ParseError.SyntaxError(
+                          "Expected ',' or '}' after dictionary entry",
+                          tokens.peek().line,
+                          "",
+                          Some("',' or '}'"),
+                          Some(other.toString)
+                        ))
+                    }
+                  }
               }
-
-            case Left(err) => return Left(err)
-          }
-
-        case Left(err) => return Left(err)
+            }
+        }
       }
-    }
 
-    Left(ParseError.SyntaxError(
-      "Unexpected EOF in dictionary",
-      startLine,
-      "",
-      Some("}"),
-      Some("EOF")
-    ))
+    parseEntries(Map.empty)
   }
 }
