@@ -5,7 +5,7 @@ import io.github.optical002.godot.parser.model.{ExtResource, SubResource, TextRe
 
 object ResourceAssembler {
 
-  def assemble(tags: Vector[Tag]): ParseResult[TextResource] =
+  def assemble(tags: Vector[Tag])(using Context): ParseResult[TextResource] =
     if (tags.isEmpty) {
       Left(ParseError.SemanticError(
         "Empty file - expected [gd_resource] header",
@@ -23,15 +23,15 @@ object ResourceAssembler {
           Map("expected" -> "gd_resource", "actual" -> headerTag.name)
         ))
       } else {
-        val resourceType = headerTag.fields.get("type").flatMap(_.asString).getOrElse("")
-        val scriptClass = headerTag.fields.get("script_class").flatMap(_.asString)
-        val format = headerTag.fields.get("format").flatMap(_.asInt).map(_.toInt).getOrElse(3)
-        val uid = headerTag.fields.get("uid").flatMap(_.asString)
+        val resourceType = headerTag.getResourceType
+        val scriptClass = headerTag.getScriptClass
+        val format = headerTag.getFormat
+        val uid = headerTag.getUid
 
         def parseTag(tag: Tag): ParseResult[Either[String, (String, Any)]] =
           tag.name match {
-            case "ext_resource" => parseExtResource(tag).map(r => Right(("ext_resource", r)))
-            case "sub_resource" => parseSubResource(tag).map(r => Right(("sub_resource", r)))
+            case "ext_resource" => TagParsers.parseExtResource(tag).map(r => Right(("ext_resource", r)))
+            case "sub_resource" => TagParsers.parseSubResource(tag).map(r => Right(("sub_resource", r)))
             case "resource" => Right(Right(("resource", tag.fields)))
             case other =>
               Left(ParseError.SemanticError(
@@ -57,34 +57,5 @@ object ResourceAssembler {
           TextResource(resourceType, scriptClass, format, uid, extRes, subRes, props)
         }
       }
-    }
-
-  private def parseExtResource(tag: Tag): ParseResult[ExtResource] =
-    tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
-      ParseError.SemanticError(
-        "ext_resource missing 'id' field",
-        tag.line,
-        "",
-        Map.empty
-      )
-    ).map { id =>
-      val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
-      val path = tag.fields.get("path").flatMap(_.asString).getOrElse("")
-      val uid = tag.fields.get("uid").flatMap(_.asString)
-      ExtResource(id, resourceType, path, uid)
-    }
-
-  private def parseSubResource(tag: Tag): ParseResult[SubResource] =
-    tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
-      ParseError.SemanticError(
-        "sub_resource missing 'id' field",
-        tag.line,
-        "",
-        Map.empty
-      )
-    ).map { id =>
-      val resourceType = tag.fields.get("type").flatMap(_.asString).getOrElse("")
-      val properties = tag.fields - "id" - "type"
-      SubResource(id, resourceType, properties)
     }
 }

@@ -5,7 +5,7 @@ import io.github.optical002.godot.parser.tokenizer.{CharStream, VariantTokenizer
 
 object VariantParser {
 
-  def parse(content: String): ParseResult[Vector[Tag]] = {
+  def parse(content: String)(using Context): ParseResult[Vector[Tag]] = {
     val stream = CharStream(content)
     val tokenizer = VariantTokenizer(stream)
 
