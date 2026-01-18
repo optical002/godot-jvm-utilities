@@ -52,6 +52,7 @@ lazy val root = (project in file("."))
 lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
   .settings(
     name := "sbt-godot-build",
+    publish / skip := true,
     version := "0.1.4",
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
@@ -64,6 +65,7 @@ lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
   .in(file("godotParser"))
   .settings(
     name := "godot-parser",
+    publish / skip := false,
     version := "0.1.0",
     scalaVersion := libraryScalaVersion,
     publishMavenStyle := true,
