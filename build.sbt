@@ -67,6 +67,7 @@ lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
     version := "0.1.0",
     scalaVersion := libraryScalaVersion,
     publishMavenStyle := true,
+    sbtPluginPublishLegacyMavenStyle := false,
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % "1.0.0" % Test,
       "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test,
