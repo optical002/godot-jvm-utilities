@@ -56,6 +56,7 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
     publishMavenStyle := true,
+    publish / skip := true,
     sbtPluginPublishLegacyMavenStyle := false
   )
 
