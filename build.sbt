@@ -23,7 +23,6 @@ ThisBuild / description := "Utility packages/plugins for game development with g
 ThisBuild / licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT"))
 ThisBuild / homepage := Some(url("https://github.com/optical002/godot-jvm-utilities"))
 ThisBuild / versionScheme := Some("early-semver")
-
 ThisBuild / credentials ++= Seq(
   Credentials(
     "Sonatype Nexus Repository Manager",
@@ -68,12 +67,10 @@ lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
     version := "0.1.0",
     scalaVersion := libraryScalaVersion,
     publishMavenStyle := true,
+    publish / skip := false,
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % "1.0.0" % Test,
       "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test,
       "com.lihaoyi" %%% "pprint" % "0.9.6"
     )
   )
-
-lazy val godotParserJVM = godotParser.jvm
-lazy val godotParserNative = godotParser.native
