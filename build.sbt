@@ -56,8 +56,7 @@ lazy val sbtGodotBuild = (project in file("sbtGodotBuild"))
     sbtPlugin := true,
     scalaVersion := sbtPluginScalaVersion,
     publishMavenStyle := true,
-    sbtPluginPublishLegacyMavenStyle := false,
-    publish / skip := true,
+    sbtPluginPublishLegacyMavenStyle := false
   )
 
 lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
@@ -68,8 +67,6 @@ lazy val godotParser = crossProject(JVMPlatform, NativePlatform)
     version := "0.1.0",
     scalaVersion := libraryScalaVersion,
     publishMavenStyle := true,
-    sbtPluginPublishLegacyMavenStyle := false,
-    publish / skip := false,
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % "1.0.0" % Test,
       "org.scalacheck" %%% "scalacheck" % "1.18.0" % Test,
