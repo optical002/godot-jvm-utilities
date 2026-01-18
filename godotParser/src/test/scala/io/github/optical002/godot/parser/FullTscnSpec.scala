@@ -642,7 +642,10 @@ class FullTscnSpec extends FunSuite {
                         None
                       ),
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("2_ljnug"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("2_ljnug"))
+                        ),
                         None
                       )
                     ),
@@ -659,11 +662,17 @@ class FullTscnSpec extends FunSuite {
                   "frames" -> Variant.Array(
                     Vector(
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("3_krmrv"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("3_krmrv"))
+                        ),
                         None
                       ),
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("4_jrmwk"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("4_jrmwk"))
+                        ),
                         None
                       )
                     ),
@@ -700,7 +709,10 @@ class FullTscnSpec extends FunSuite {
         None,
         Vector.empty,
         Vector.empty,
-        Map("script" -> Variant.Object(ObjectValue.ExtResource("1_8162q")), "metadata/_edit_group_" -> Variant.Bool(true))
+        Map(
+          "script" -> Variant.Object(ObjectValue.ExtResource("1_8162q")),
+          "metadata/_edit_group_" -> Variant.Bool(true)
+        )
       ),
       NodeData(
         "AnimatedSprite2d",
@@ -767,11 +779,17 @@ class FullTscnSpec extends FunSuite {
                   "frames" -> Variant.Array(
                     Vector(
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("1_ytrj5"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("1_ytrj5"))
+                        ),
                         None
                       ),
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("2_bls2m"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("2_bls2m"))
+                        ),
                         None
                       )
                     ),
@@ -788,11 +806,17 @@ class FullTscnSpec extends FunSuite {
                   "frames" -> Variant.Array(
                     Vector(
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("3_j0cqp"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("3_j0cqp"))
+                        ),
                         None
                       ),
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("4_bnymk"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("4_bnymk"))
+                        ),
                         None
                       )
                     ),
@@ -809,11 +833,17 @@ class FullTscnSpec extends FunSuite {
                   "frames" -> Variant.Array(
                     Vector(
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("5_kl1oy"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("5_kl1oy"))
+                        ),
                         None
                       ),
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("6_h88k2"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("6_h88k2"))
+                        ),
                         None
                       )
                     ),
@@ -1212,7 +1242,10 @@ class FullTscnSpec extends FunSuite {
                   "frames" -> Variant.Array(
                     Vector(
                       Variant.Dictionary(
-                        Map("duration" -> Variant.Float(1.0), "texture" -> Variant.Object(ObjectValue.ExtResource("1_rkbfj"))),
+                        Map(
+                          "duration" -> Variant.Float(1.0),
+                          "texture" -> Variant.Object(ObjectValue.ExtResource("1_rkbfj"))
+                        ),
                         None
                       )
                     ),
@@ -2234,7 +2267,7 @@ class FullTscnSpec extends FunSuite {
     ).map { case (tscn, packedScene) =>
       Parser.parseTscn(tscn) match {
         case Left(err) =>
-          pprint.pprintln(err)
+          println(err.formattedMessage)
           assert(false)
         case Right(success) =>
           assertEquals(success, packedScene)

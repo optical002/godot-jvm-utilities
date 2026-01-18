@@ -277,7 +277,7 @@ object ConstructParser {
       ))
     } yield Variant.Object(ObjectValue.SubResource(id))
 
-  private def parseRID(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
+  private def parseRID(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // RID can be RID() (empty) or RID(uint64_number)
     for {
       args <- parseArguments(tokens, 0, 1) // 0 or 1 arguments
@@ -286,21 +286,18 @@ object ConstructParser {
         case Some(variant) => variant.asInt.toRight(invalidArgError("RID", 0, "integer"))
       }
     } yield Variant.RID(rid)
-  }
 
-  private def parseCallable(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
+  private def parseCallable(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Callable only supports Callable() (empty)
     for {
       args <- parseArguments(tokens, 0)
     } yield Variant.Callable(None, "")
-  }
 
-  private def parseSignal(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
+  private def parseSignal(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Signal only supports Signal() (empty)
     for {
       args <- parseArguments(tokens, 0)
     } yield Variant.Signal(None, "")
-  }
 
   private def parsePackedByteArray(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Expect opening parenthesis
@@ -348,7 +345,6 @@ object ConstructParser {
               Left(ParseError.SyntaxError.a(
                 "Expected ')' after base64 string in PackedByteArray",
                 tokens.currentLine,
-
                 Some(")"),
                 None
               ))
@@ -430,7 +426,6 @@ object ConstructParser {
               Left(ParseError.SyntaxError.a(
                 "Expected ',' or ')' in PackedStringArray",
                 tokens.currentLine,
-
                 Some("',' or ')'"),
                 Some(other.toString)
               ))
@@ -468,7 +463,6 @@ object ConstructParser {
         Left(ParseError.SyntaxError.a(
           s"PackedVector2Array requires an even number of values (got ${numbers.length})",
           tokens.currentLine,
-
           Some("even number of values"),
           Some(s"${numbers.length} values")
         ))
@@ -484,7 +478,6 @@ object ConstructParser {
         Left(ParseError.SyntaxError.a(
           s"PackedVector3Array requires a multiple of 3 values (got ${numbers.length})",
           tokens.currentLine,
-
           Some("multiple of 3 values"),
           Some(s"${numbers.length} values")
         ))
@@ -500,7 +493,6 @@ object ConstructParser {
         Left(ParseError.SyntaxError.a(
           s"PackedColorArray requires a multiple of 4 values (got ${numbers.length})",
           tokens.currentLine,
-
           Some("multiple of 4 values"),
           Some(s"${numbers.length} values")
         ))
@@ -516,7 +508,6 @@ object ConstructParser {
         Left(ParseError.SyntaxError.a(
           s"PackedVector4Array requires a multiple of 4 values (got ${numbers.length})",
           tokens.currentLine,
-
           Some("multiple of 4 values"),
           Some(s"${numbers.length} values")
         ))
@@ -581,7 +572,6 @@ object ConstructParser {
               Left(ParseError.SyntaxError.a(
                 s"Expected ',' or ')' in $arrayType",
                 tokens.currentLine,
-
                 Some("',' or ')'"),
                 Some(other.toString)
               ))
@@ -648,7 +638,6 @@ object ConstructParser {
             Left(ParseError.SyntaxError.a(
               "Expected ',' or ')' after number",
               tokens.currentLine,
-
               Some("',' or ')'"),
               Some(other.toString)
             ))
@@ -684,7 +673,9 @@ object ConstructParser {
   private def parseArguments(tokens: TokenIterator, expectedCount: Int)(using Context): ParseResult[Vector[Variant]] =
     parseArguments(tokens, expectedCount, expectedCount)
 
-  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int)(using Context): ParseResult[Vector[Variant]] =
+  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int)(using
+    Context
+  ): ParseResult[Vector[Variant]] =
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
       Left(ParseError.SyntaxError.a(

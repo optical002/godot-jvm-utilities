@@ -173,89 +173,89 @@ object VariantParser {
       val token = tokens.peek()
 
       token.tokenType match {
-      // Direct values from tokenizer
-      case TokenType.String | TokenType.StringName | TokenType.Number | TokenType.Color =>
-        Right(tokens.next().value)
+        // Direct values from tokenizer
+        case TokenType.String | TokenType.StringName | TokenType.Number | TokenType.Color =>
+          Right(tokens.next().value)
 
-      // Identifiers - could be keywords (true/false/null/nil) or constructs
-      case TokenType.Identifier =>
-        val idToken = tokens.next()
-        idToken.value.asString.orElse(idToken.value.asStringName) match {
-          case Some("true") => Right(Variant.Bool(true))
-          case Some("false") => Right(Variant.Bool(false))
-          case Some("null") => Right(Variant.Object(ObjectValue.Null))
-          case Some("nil") => Right(Variant.Nil)
-          case Some("inf") => Right(Variant.Float(Double.PositiveInfinity))
-          case Some("inf_neg") => Right(Variant.Float(Double.NegativeInfinity))
-          case Some("nan") => Right(Variant.Float(Double.NaN))
-          case Some(name) =>
-            // Check for ObjectValue.ConstructName(...) pattern
-            if (name == "ObjectValue" && tokens.hasNext && tokens.peek().tokenType == TokenType.Period) {
-              tokens.next() // Consume the period
-              if (tokens.hasNext && tokens.peek().tokenType == TokenType.Identifier) {
-                val constructToken = tokens.next()
-                constructToken.value.asString.orElse(constructToken.value.asStringName) match {
-                  case Some("Null") =>
-                    // ObjectValue.Null is a special case for null object references
-                    Right(Variant.Object(ObjectValue.Null))
-                  case Some(constructName) =>
-                    if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
-                      ConstructParser.parseConstruct(constructName, tokens)
-                    } else {
+        // Identifiers - could be keywords (true/false/null/nil) or constructs
+        case TokenType.Identifier =>
+          val idToken = tokens.next()
+          idToken.value.asString.orElse(idToken.value.asStringName) match {
+            case Some("true") => Right(Variant.Bool(true))
+            case Some("false") => Right(Variant.Bool(false))
+            case Some("null") => Right(Variant.Object(ObjectValue.Null))
+            case Some("nil") => Right(Variant.Nil)
+            case Some("inf") => Right(Variant.Float(Double.PositiveInfinity))
+            case Some("inf_neg") => Right(Variant.Float(Double.NegativeInfinity))
+            case Some("nan") => Right(Variant.Float(Double.NaN))
+            case Some(name) =>
+              // Check for ObjectValue.ConstructName(...) pattern
+              if (name == "ObjectValue" && tokens.hasNext && tokens.peek().tokenType == TokenType.Period) {
+                tokens.next() // Consume the period
+                if (tokens.hasNext && tokens.peek().tokenType == TokenType.Identifier) {
+                  val constructToken = tokens.next()
+                  constructToken.value.asString.orElse(constructToken.value.asStringName) match {
+                    case Some("Null") =>
+                      // ObjectValue.Null is a special case for null object references
+                      Right(Variant.Object(ObjectValue.Null))
+                    case Some(constructName) =>
+                      if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
+                        ConstructParser.parseConstruct(constructName, tokens)
+                      } else {
+                        Left(ParseError.SyntaxError.a(
+                          s"Expected '(' after ObjectValue.$constructName",
+                          tokens.currentLine,
+                          Some("'('"),
+                          Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
+                        ))
+                      }
+                    case None =>
                       Left(ParseError.SyntaxError.a(
-                        s"Expected '(' after ObjectValue.$constructName",
+                        "Invalid construct name after ObjectValue.",
                         tokens.currentLine,
-                        Some("'('"),
-                        Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
+                        Some("construct name"),
+                        None
                       ))
-                    }
-                  case None =>
-                    Left(ParseError.SyntaxError.a(
-                      "Invalid construct name after ObjectValue.",
-                      tokens.currentLine,
-                      Some("construct name"),
-                      None
-                    ))
+                  }
+                } else {
+                  Left(ParseError.SyntaxError.a(
+                    "Expected construct name after ObjectValue.",
+                    tokens.currentLine,
+                    Some("identifier"),
+                    Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
+                  ))
                 }
+              } else if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
+                // Check if followed by parenthesis (construct)
+                ConstructParser.parseConstruct(name, tokens)
               } else {
-                Left(ParseError.SyntaxError.a(
-                  "Expected construct name after ObjectValue.",
-                  tokens.currentLine,
-                  Some("identifier"),
-                  Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
-                ))
+                // Just an identifier value - treat as string
+                Right(Variant.String(name))
               }
-            } else if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
-              // Check if followed by parenthesis (construct)
-              ConstructParser.parseConstruct(name, tokens)
-            } else {
-              // Just an identifier value - treat as string
-              Right(Variant.String(name))
-            }
-          case None =>
-            Left(ParseError.SyntaxError.a(
-              "Invalid identifier value",
-              idToken.line,
-              Some("valid identifier"),
-              None
-            ))
-        }
+            case None =>
+              Left(ParseError.SyntaxError.a(
+                "Invalid identifier value",
+                idToken.line,
+                Some("valid identifier"),
+                None
+              ))
+          }
 
-      // Array
-      case TokenType.BracketOpen =>
-        parseArray(tokens)
+        // Array
+        case TokenType.BracketOpen =>
+          parseArray(tokens)
 
-      // Dictionary
-      case TokenType.CurlyBracketOpen =>
-        parseDictionary(tokens)
+        // Dictionary
+        case TokenType.CurlyBracketOpen =>
+          parseDictionary(tokens)
 
-      case other =>
-        Left(ParseError.SyntaxError.a(
-          s"Unexpected token type for value: $other",
-          token.line,
-          Some("value"),
-          Some(other.toString)
-        ))
+        case other =>
+          Left(ParseError.SyntaxError.a(
+            s"Unexpected token type for value: $other",
+            token.line,
+            Some("value"),
+            Some(other.toString)
+          ))
       }
     }
 

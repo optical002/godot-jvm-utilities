@@ -47,7 +47,13 @@ object SceneAssembler {
               ))
           }
 
-        tags.tail.foldLeft[ParseResult[(Vector[ExtResource], Vector[SubResource], Vector[NodeData], Vector[ConnectionData], Vector[String])]](
+        tags.tail.foldLeft[ParseResult[(
+          Vector[ExtResource],
+          Vector[SubResource],
+          Vector[NodeData],
+          Vector[ConnectionData],
+          Vector[String]
+        )]](
           Right((Vector.empty, Vector.empty, Vector.empty, Vector.empty, Vector.empty))
         ) { (acc, tag) =>
           acc.flatMap { case (extRes, subRes, nodes, conns, editables) =>
@@ -66,8 +72,4 @@ object SceneAssembler {
       }
     }
 
-
-
-
-  
 }

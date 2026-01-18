@@ -5,7 +5,7 @@ sealed trait ParseError {
   def line: Int
   def maybeColumn: Option[Int]
   def ctx: Context
-  
+
   def formattedMessage: String = {
     val errorType = this match {
       case _: ParseError.TokenizeError => "Tokenize error"
@@ -109,9 +109,12 @@ object ParseError {
     def a(
       message: String,
       line: Int,
-      column: Int,
+      column: Int
     )(using ctx: Context): TokenizeError = TokenizeError(
-      message = message, line = line, column = column, ctx = ctx
+      message = message,
+      line = line,
+      column = column,
+      ctx = ctx
     )
   }
 
@@ -131,7 +134,11 @@ object ParseError {
       expected: Option[String] = None,
       actual: Option[String] = None
     )(using ctx: Context): SyntaxError = SyntaxError(
-      message = message, line = line, ctx = ctx, expected = expected, actual = actual
+      message = message,
+      line = line,
+      ctx = ctx,
+      expected = expected,
+      actual = actual
     )
   }
 
@@ -149,7 +156,10 @@ object ParseError {
       line: Int,
       details: Map[String, String] = Map.empty
     )(using ctx: Context): SemanticError = SemanticError(
-      message = message, line = line, ctx = ctx, details = details
+      message = message,
+      line = line,
+      ctx = ctx,
+      details = details
     )
   }
 
@@ -168,7 +178,10 @@ object ParseError {
       maxSupported: Int,
       line: Int
     )(using ctx: Context): UnsupportedVersion = UnsupportedVersion(
-      formatVersion = formatVersion, maxSupported = maxSupported, line = line, ctx = ctx
+      formatVersion = formatVersion,
+      maxSupported = maxSupported,
+      line = line,
+      ctx = ctx
     )
   }
 }

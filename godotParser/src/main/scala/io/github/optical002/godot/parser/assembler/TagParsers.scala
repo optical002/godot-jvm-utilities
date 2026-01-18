@@ -103,27 +103,27 @@ object TagParsers {
           Map.empty
         )
       )
-        from <- tag.fields.get("from").flatMap(_.asString).toRight(
-          ParseError.SemanticError.a(
-            "connection missing 'from' field",
-            tag.line,
-            Map.empty
-          )
+      from <- tag.fields.get("from").flatMap(_.asString).toRight(
+        ParseError.SemanticError.a(
+          "connection missing 'from' field",
+          tag.line,
+          Map.empty
         )
-        to <- tag.fields.get("to").flatMap(_.asString).toRight(
-          ParseError.SemanticError.a(
-            "connection missing 'to' field",
-            tag.line,
-            Map.empty
-          )
+      )
+      to <- tag.fields.get("to").flatMap(_.asString).toRight(
+        ParseError.SemanticError.a(
+          "connection missing 'to' field",
+          tag.line,
+          Map.empty
         )
-        method <- tag.fields.get("method").flatMap(_.asString).toRight(
-          ParseError.SemanticError.a(
-            "connection missing 'method' field",
-            tag.line,
-            Map.empty
-          )
+      )
+      method <- tag.fields.get("method").flatMap(_.asString).toRight(
+        ParseError.SemanticError.a(
+          "connection missing 'method' field",
+          tag.line,
+          Map.empty
         )
+      )
     } yield {
       val flags = tag.fields.get("flags").flatMap(_.asInt).map(_.toInt).getOrElse(0)
       val unbinds = tag.fields.get("unbinds").flatMap(_.asInt).map(_.toInt).getOrElse(0)

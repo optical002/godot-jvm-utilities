@@ -5,9 +5,8 @@ import io.github.optical002.godot.parser.model.ConfigFile
 
 object ConfigAssembler {
 
-  def assemble(tags: Vector[Tag]): ParseResult[ConfigFile] = {
+  def assemble(tags: Vector[Tag]): ParseResult[ConfigFile] =
     Right(ConfigFile(tags.map { tag =>
       tag.name -> tag.fields
     }.toMap))
-  }
 }
