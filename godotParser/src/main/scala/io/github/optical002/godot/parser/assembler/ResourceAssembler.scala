@@ -7,19 +7,17 @@ object ResourceAssembler {
 
   def assemble(tags: Vector[Tag])(using Context): ParseResult[TextResource] =
     if (tags.isEmpty) {
-      Left(ParseError.SemanticError(
+      Left(ParseError.SemanticError.a(
         "Empty file - expected [gd_resource] header",
         0,
-        "",
         Map.empty
       ))
     } else {
       val headerTag = tags.head
       if (headerTag.name != "gd_resource") {
-        Left(ParseError.SemanticError(
+        Left(ParseError.SemanticError.a(
           s"Expected [gd_resource] header, got [${headerTag.name}]",
           headerTag.line,
-          "",
           Map("expected" -> "gd_resource", "actual" -> headerTag.name)
         ))
       } else {
@@ -34,10 +32,9 @@ object ResourceAssembler {
             case "sub_resource" => TagParsers.parseSubResource(tag).map(r => Right(("sub_resource", r)))
             case "resource" => Right(Right(("resource", tag.fields)))
             case other =>
-              Left(ParseError.SemanticError(
+              Left(ParseError.SemanticError.a(
                 s"Unexpected tag in .tres file: [$other]",
                 tag.line,
-                "",
                 Map("tag" -> other)
               ))
           }

@@ -4,7 +4,7 @@ import io.github.optical002.godot.parser.core.*
 
 object ConstructParser {
 
-  def parseConstruct(name: String, tokens: TokenIterator): ParseResult[Variant] =
+  def parseConstruct(name: String, tokens: TokenIterator)(using Context): ParseResult[Variant] =
     name match {
       // Vector types
       case "Vector2" => parseVector2(tokens)
@@ -56,30 +56,29 @@ object ConstructParser {
       case "Array" => parseTypedArray(tokens)
       case "Dictionary" => parseTypedDictionary(tokens)
 
-      case _ => Left(ParseError.SyntaxError(
+      case _ => Left(ParseError.SyntaxError.a(
           s"Unknown construct: $name",
           tokens.currentLine,
-          "",
           Some(s"Known construct name"),
           Some(name)
         ))
     }
 
-  private def parseVector2(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector2(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 2)
       x <- args(0).asFloat.toRight(invalidArgError("Vector2", 0, "number"))
       y <- args(1).asFloat.toRight(invalidArgError("Vector2", 1, "number"))
     } yield Variant.Vector2(x, y)
 
-  private def parseVector2i(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector2i(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 2)
       x <- args(0).asInt.toRight(invalidArgError("Vector2i", 0, "integer"))
       y <- args(1).asInt.toRight(invalidArgError("Vector2i", 1, "integer"))
     } yield Variant.Vector2i(x, y)
 
-  private def parseVector3(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector3(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 3)
       x <- args(0).asFloat.toRight(invalidArgError("Vector3", 0, "number"))
@@ -87,7 +86,7 @@ object ConstructParser {
       z <- args(2).asFloat.toRight(invalidArgError("Vector3", 2, "number"))
     } yield Variant.Vector3(x, y, z)
 
-  private def parseVector3i(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector3i(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 3)
       x <- args(0).asInt.toRight(invalidArgError("Vector3i", 0, "integer"))
@@ -95,7 +94,7 @@ object ConstructParser {
       z <- args(2).asInt.toRight(invalidArgError("Vector3i", 2, "integer"))
     } yield Variant.Vector3i(x, y, z)
 
-  private def parseVector4(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector4(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Vector4", 0, "number"))
@@ -104,7 +103,7 @@ object ConstructParser {
       w <- args(3).asFloat.toRight(invalidArgError("Vector4", 3, "number"))
     } yield Variant.Vector4(x, y, z, w)
 
-  private def parseVector4i(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseVector4i(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asInt.toRight(invalidArgError("Vector4i", 0, "integer"))
@@ -113,7 +112,7 @@ object ConstructParser {
       w <- args(3).asInt.toRight(invalidArgError("Vector4i", 3, "integer"))
     } yield Variant.Vector4i(x, y, z, w)
 
-  private def parseRect2(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseRect2(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Rect2", 0, "number"))
@@ -122,7 +121,7 @@ object ConstructParser {
       h <- args(3).asFloat.toRight(invalidArgError("Rect2", 3, "number"))
     } yield Variant.Rect2(x, y, w, h)
 
-  private def parseRect2i(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseRect2i(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asInt.toRight(invalidArgError("Rect2i", 0, "integer"))
@@ -131,7 +130,7 @@ object ConstructParser {
       h <- args(3).asInt.toRight(invalidArgError("Rect2i", 3, "integer"))
     } yield Variant.Rect2i(x, y, w, h)
 
-  private def parseTransform2D(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseTransform2D(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 6)
       xx <- args(0).asFloat.toRight(invalidArgError("Transform2D", 0, "number"))
@@ -142,7 +141,7 @@ object ConstructParser {
       oy <- args(5).asFloat.toRight(invalidArgError("Transform2D", 5, "number"))
     } yield Variant.Transform2D(xx, xy, yx, yy, ox, oy)
 
-  private def parseTransform3D(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseTransform3D(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 12)
       nums <-
@@ -166,7 +165,7 @@ object ConstructParser {
       nums(11)
     )
 
-  private def parseBasis(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseBasis(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 9)
       nums <- args.map(_.asFloat.toRight(invalidArgError("Basis", 0, "number"))).foldLeft[ParseResult[Vector[Double]]](
@@ -186,7 +185,7 @@ object ConstructParser {
       nums(8)
     )
 
-  private def parseProjection(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseProjection(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 16)
       nums <-
@@ -214,7 +213,7 @@ object ConstructParser {
       nums(15)
     )
 
-  private def parsePlane(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePlane(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       a <- args(0).asFloat.toRight(invalidArgError("Plane", 0, "number"))
@@ -223,7 +222,7 @@ object ConstructParser {
       d <- args(3).asFloat.toRight(invalidArgError("Plane", 3, "number"))
     } yield Variant.Plane(a, b, c, d)
 
-  private def parseQuaternion(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseQuaternion(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4)
       x <- args(0).asFloat.toRight(invalidArgError("Quaternion", 0, "number"))
@@ -232,7 +231,7 @@ object ConstructParser {
       w <- args(3).asFloat.toRight(invalidArgError("Quaternion", 3, "number"))
     } yield Variant.Quaternion(x, y, z, w)
 
-  private def parseAABB(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseAABB(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 6)
       px <- args(0).asFloat.toRight(invalidArgError("AABB", 0, "number"))
@@ -243,7 +242,7 @@ object ConstructParser {
       sz <- args(5).asFloat.toRight(invalidArgError("AABB", 5, "number"))
     } yield Variant.AABB(px, py, pz, sx, sy, sz)
 
-  private def parseColorConstruct(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseColorConstruct(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 4) // Godot requires exactly 4 arguments (r, g, b, a)
       r <- args(0).asFloat.toRight(invalidArgError("Color", 0, "number"))
@@ -252,13 +251,13 @@ object ConstructParser {
       a <- args(3).asFloat.toRight(invalidArgError("Color", 3, "number"))
     } yield Variant.Color(r, g, b, a)
 
-  private def parseNodePath(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseNodePath(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
       path <- args(0).asString.orElse(args(0).asStringName).toRight(invalidArgError("NodePath", 0, "string"))
     } yield Variant.NodePath(path)
 
-  private def parseExtResource(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseExtResource(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
       id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError(
@@ -268,7 +267,7 @@ object ConstructParser {
       ))
     } yield Variant.Object(ObjectValue.ExtResource(id))
 
-  private def parseSubResource(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseSubResource(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     for {
       args <- parseArguments(tokens, 1)
       id <- args(0).asString.orElse(args(0).asStringName.orElse(args(0).asInt.map(_.toString))).toRight(invalidArgError(
@@ -278,7 +277,7 @@ object ConstructParser {
       ))
     } yield Variant.Object(ObjectValue.SubResource(id))
 
-  private def parseRID(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseRID(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
     // RID can be RID() (empty) or RID(uint64_number)
     for {
       args <- parseArguments(tokens, 0, 1) // 0 or 1 arguments
@@ -289,36 +288,34 @@ object ConstructParser {
     } yield Variant.RID(rid)
   }
 
-  private def parseCallable(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseCallable(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
     // Callable only supports Callable() (empty)
     for {
       args <- parseArguments(tokens, 0)
     } yield Variant.Callable(None, "")
   }
 
-  private def parseSignal(tokens: TokenIterator): ParseResult[Variant] = {
+  private def parseSignal(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
     // Signal only supports Signal() (empty)
     for {
       args <- parseArguments(tokens, 0)
     } yield Variant.Signal(None, "")
   }
 
-  private def parsePackedByteArray(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedByteArray(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '(' for PackedByteArray",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
     } else if (!tokens.hasNext) {
       // Check first token after (
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Unexpected EOF in PackedByteArray",
         tokens.currentLine,
-        "",
         Some("string or number"),
         Some("EOF")
       ))
@@ -337,10 +334,9 @@ object ConstructParser {
               Right(java.util.Base64.getDecoder.decode(base64String).toVector)
             catch {
               case e: IllegalArgumentException =>
-                Left(ParseError.SyntaxError(
+                Left(ParseError.SyntaxError.a(
                   s"Invalid base64-encoded string: ${e.getMessage}",
                   tokens.currentLine,
-                  "",
                   Some("valid base64 string"),
                   Some(base64String)
                 ))
@@ -349,10 +345,10 @@ object ConstructParser {
           bytesResult.flatMap { bytes =>
             // Expect closing parenthesis
             if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 "Expected ')' after base64 string in PackedByteArray",
                 tokens.currentLine,
-                "",
+
                 Some(")"),
                 None
               ))
@@ -375,32 +371,31 @@ object ConstructParser {
       }
     }
 
-  private def parsePackedInt32Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedInt32Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedInt32Array").map { numbers =>
       Variant.PackedInt32Array(numbers.map(_.toLong.toInt))
     }
 
-  private def parsePackedInt64Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedInt64Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedInt64Array").map { numbers =>
       Variant.PackedInt64Array(numbers.map(_.toLong))
     }
 
-  private def parsePackedFloat32Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedFloat32Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedFloat32Array", allowFloat = true).map { numbers =>
       Variant.PackedFloat32Array(numbers.map(_.toFloat))
     }
 
-  private def parsePackedFloat64Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedFloat64Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedFloat64Array", allowFloat = true).map { numbers =>
       Variant.PackedFloat64Array(numbers)
     }
 
-  private def parsePackedStringArray(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedStringArray(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '(' for PackedStringArray",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
@@ -408,10 +403,9 @@ object ConstructParser {
       @scala.annotation.tailrec
       def parseStrings(acc: Vector[String], expectingCommaOrClose: Boolean): ParseResult[Variant] =
         if (!tokens.hasNext) {
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             "Unexpected EOF in PackedStringArray",
             tokens.currentLine,
-            "",
             Some("')'"),
             Some("EOF")
           ))
@@ -433,10 +427,10 @@ object ConstructParser {
               Right(Variant.PackedStringArray(acc))
 
             case (true, other) =>
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 "Expected ',' or ')' in PackedStringArray",
                 tokens.currentLine,
-                "",
+
                 Some("',' or ')'"),
                 Some(other.toString)
               ))
@@ -447,20 +441,18 @@ object ConstructParser {
               strToken.value.asString.orElse(strToken.value.asStringName) match {
                 case Some(str) => parseStrings(acc :+ str, expectingCommaOrClose = true)
                 case None =>
-                  Left(ParseError.SyntaxError(
+                  Left(ParseError.SyntaxError.a(
                     "Expected string value in PackedStringArray",
                     tokens.currentLine,
-                    "",
                     Some("string"),
                     None
                   ))
               }
 
             case (false, other) =>
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 "Expected string in PackedStringArray",
                 tokens.currentLine,
-                "",
                 Some("string"),
                 Some(other.toString)
               ))
@@ -470,13 +462,13 @@ object ConstructParser {
       parseStrings(Vector.empty, expectingCommaOrClose = false)
     }
 
-  private def parsePackedVector2Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedVector2Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector2Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 2 != 0) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           s"PackedVector2Array requires an even number of values (got ${numbers.length})",
           tokens.currentLine,
-          "",
+
           Some("even number of values"),
           Some(s"${numbers.length} values")
         ))
@@ -486,13 +478,13 @@ object ConstructParser {
       }
     }
 
-  private def parsePackedVector3Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedVector3Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector3Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 3 != 0) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           s"PackedVector3Array requires a multiple of 3 values (got ${numbers.length})",
           tokens.currentLine,
-          "",
+
           Some("multiple of 3 values"),
           Some(s"${numbers.length} values")
         ))
@@ -502,13 +494,13 @@ object ConstructParser {
       }
     }
 
-  private def parsePackedColorArray(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedColorArray(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedColorArray", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 4 != 0) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           s"PackedColorArray requires a multiple of 4 values (got ${numbers.length})",
           tokens.currentLine,
-          "",
+
           Some("multiple of 4 values"),
           Some(s"${numbers.length} values")
         ))
@@ -518,13 +510,13 @@ object ConstructParser {
       }
     }
 
-  private def parsePackedVector4Array(tokens: TokenIterator): ParseResult[Variant] =
+  private def parsePackedVector4Array(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     parsePackedArray(tokens, "PackedVector4Array", allowFloat = true).flatMap { numbers =>
       if (numbers.length % 4 != 0) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           s"PackedVector4Array requires a multiple of 4 values (got ${numbers.length})",
           tokens.currentLine,
-          "",
+
           Some("multiple of 4 values"),
           Some(s"${numbers.length} values")
         ))
@@ -534,13 +526,13 @@ object ConstructParser {
       }
     }
 
-  private def parseTypedArray(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseTypedArray(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Array[type]([...]) - simplified for now, just return untyped array
     for {
       arr <- parseArrayArgument(tokens)
     } yield arr
 
-  private def parseTypedDictionary(tokens: TokenIterator): ParseResult[Variant] =
+  private def parseTypedDictionary(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     // Dictionary[keyType, valueType]({...}) - simplified for now, just return untyped dict
     for {
       dict <- parseDictionaryArgument(tokens)
@@ -550,12 +542,11 @@ object ConstructParser {
     tokens: TokenIterator,
     arrayType: String,
     allowFloat: Boolean = false
-  ): ParseResult[Vector[Double]] =
+  )(using Context): ParseResult[Vector[Double]] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         s"Expected '(' for $arrayType",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
@@ -563,10 +554,9 @@ object ConstructParser {
       @scala.annotation.tailrec
       def parseNumbers(acc: Vector[Double], expectingCommaOrClose: Boolean): ParseResult[Vector[Double]] =
         if (!tokens.hasNext) {
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             s"Unexpected EOF in $arrayType",
             tokens.currentLine,
-            "",
             Some("')'"),
             Some("EOF")
           ))
@@ -588,10 +578,10 @@ object ConstructParser {
               Right(acc)
 
             case (true, other) =>
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 s"Expected ',' or ')' in $arrayType",
                 tokens.currentLine,
-                "",
+
                 Some("',' or ')'"),
                 Some(other.toString)
               ))
@@ -600,18 +590,16 @@ object ConstructParser {
             case (false, TokenType.Number) =>
               val numToken = tokens.next() // consume number
               val numResult = if (allowFloat) {
-                numToken.value.asFloat.toRight(ParseError.SyntaxError(
+                numToken.value.asFloat.toRight(ParseError.SyntaxError.a(
                   s"Expected numeric value in $arrayType",
                   tokens.currentLine,
-                  "",
                   Some("number"),
                   None
                 ))
               } else {
-                numToken.value.asInt.map(_.toDouble).toRight(ParseError.SyntaxError(
+                numToken.value.asInt.map(_.toDouble).toRight(ParseError.SyntaxError.a(
                   s"Expected integer value in $arrayType",
                   tokens.currentLine,
-                  "",
                   Some("integer"),
                   None
                 ))
@@ -623,10 +611,9 @@ object ConstructParser {
               }
 
             case (false, other) =>
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 s"Expected number in $arrayType",
                 tokens.currentLine,
-                "",
                 Some("number"),
                 Some(other.toString)
               ))
@@ -636,14 +623,13 @@ object ConstructParser {
       parseNumbers(Vector.empty, expectingCommaOrClose = false)
     }
 
-  private def parseCommaSeparatedNumbers(tokens: TokenIterator): ParseResult[Vector[Long]] = {
+  private def parseCommaSeparatedNumbers(tokens: TokenIterator)(using Context): ParseResult[Vector[Long]] = {
     @scala.annotation.tailrec
     def parseNumbers(acc: Vector[Long], expectingCommaOrClose: Boolean): ParseResult[Vector[Long]] =
       if (!tokens.hasNext) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           "Unexpected EOF while parsing numbers",
           tokens.currentLine,
-          "",
           Some("')'"),
           Some("EOF")
         ))
@@ -659,10 +645,10 @@ object ConstructParser {
             Right(acc)
 
           case other if expectingCommaOrClose =>
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Expected ',' or ')' after number",
               tokens.currentLine,
-              "",
+
               Some("',' or ')'"),
               Some(other.toString)
             ))
@@ -674,20 +660,18 @@ object ConstructParser {
               case Some(num) =>
                 parseNumbers(acc :+ num, expectingCommaOrClose = true)
               case None =>
-                Left(ParseError.SyntaxError(
+                Left(ParseError.SyntaxError.a(
                   "Expected numeric value",
                   tokens.currentLine,
-                  "",
                   Some("number"),
                   None
                 ))
             }
 
           case other =>
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Expected number",
               tokens.currentLine,
-              "",
               Some("number"),
               Some(other.toString)
             ))
@@ -697,16 +681,15 @@ object ConstructParser {
     parseNumbers(Vector.empty, expectingCommaOrClose = false)
   }
 
-  private def parseArguments(tokens: TokenIterator, expectedCount: Int): ParseResult[Vector[Variant]] =
+  private def parseArguments(tokens: TokenIterator, expectedCount: Int)(using Context): ParseResult[Vector[Variant]] =
     parseArguments(tokens, expectedCount, expectedCount)
 
-  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int): ParseResult[Vector[Variant]] =
+  private def parseArguments(tokens: TokenIterator, minCount: Int, maxCount: Int)(using Context): ParseResult[Vector[Variant]] =
     // Expect opening parenthesis
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '(' to start construct arguments",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
@@ -714,10 +697,9 @@ object ConstructParser {
       @scala.annotation.tailrec
       def parseArgs(acc: Vector[Variant]): ParseResult[Vector[Variant]] =
         if (!tokens.hasNext) {
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             "Unexpected EOF in construct arguments",
             tokens.currentLine,
-            "",
             Some("')'"),
             Some("EOF")
           ))
@@ -727,10 +709,9 @@ object ConstructParser {
               tokens.next() // consume closing paren
               val expectedRange = if (minCount == maxCount) s"$minCount" else s"$minCount-$maxCount"
               if (acc.length < minCount || acc.length > maxCount) {
-                Left(ParseError.SyntaxError(
+                Left(ParseError.SyntaxError.a(
                   s"Expected $expectedRange arguments, got ${acc.length}",
                   tokens.currentLine,
-                  "",
                   Some(s"$expectedRange arguments"),
                   Some(s"${acc.length} arguments")
                 ))
@@ -743,10 +724,9 @@ object ConstructParser {
                 case Left(err) => Left(err)
                 case Right(value) =>
                   if (!tokens.hasNext) {
-                    Left(ParseError.SyntaxError(
+                    Left(ParseError.SyntaxError.a(
                       "Unexpected EOF after argument",
                       tokens.currentLine,
-                      "",
                       Some("',' or ')'"),
                       Some("EOF")
                     ))
@@ -758,10 +738,9 @@ object ConstructParser {
                       case TokenType.ParenthesisClose =>
                         parseArgs(acc :+ value)
                       case other =>
-                        Left(ParseError.SyntaxError(
+                        Left(ParseError.SyntaxError.a(
                           "Expected ',' or ')' after argument",
                           tokens.currentLine,
-                          "",
                           Some("',' or ')'"),
                           Some(other.toString)
                         ))
@@ -774,12 +753,11 @@ object ConstructParser {
       parseArgs(Vector.empty)
     }
 
-  private def parseArrayArgument(tokens: TokenIterator): ParseResult[Variant.Array] =
+  private def parseArrayArgument(tokens: TokenIterator)(using Context): ParseResult[Variant.Array] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '(' for packed array argument",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
@@ -787,10 +765,9 @@ object ConstructParser {
       VariantParser.parseValue(tokens).flatMap {
         case Variant.Array(elements, typed) =>
           if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Expected ')' after packed array argument",
               tokens.currentLine,
-              "",
               Some(")"),
               None
             ))
@@ -799,22 +776,20 @@ object ConstructParser {
           }
 
         case other =>
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             s"Expected array argument, got ${other.getClass.getSimpleName}",
             tokens.currentLine,
-            s"Received value: $other",
             Some("Array"),
             Some(other.getClass.getSimpleName)
           ))
       }
     }
 
-  private def parseDictionaryArgument(tokens: TokenIterator): ParseResult[Variant.Dictionary] =
+  private def parseDictionaryArgument(tokens: TokenIterator)(using Context): ParseResult[Variant.Dictionary] =
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '(' for dictionary argument",
         tokens.currentLine,
-        "",
         Some("("),
         None
       ))
@@ -822,10 +797,9 @@ object ConstructParser {
       VariantParser.parseValue(tokens).flatMap {
         case Variant.Dictionary(entries, typed) =>
           if (!tokens.hasNext || tokens.next().tokenType != TokenType.ParenthesisClose) {
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Expected ')' after dictionary argument",
               tokens.currentLine,
-              "",
               Some(")"),
               None
             ))
@@ -834,21 +808,19 @@ object ConstructParser {
           }
 
         case other =>
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             s"Expected dictionary argument, got ${other.getClass.getSimpleName}",
             tokens.currentLine,
-            "",
             Some("Dictionary"),
             Some(other.getClass.getSimpleName)
           ))
       }
     }
 
-  private def invalidArgError(construct: String, index: Int, expected: String): ParseError =
-    ParseError.SyntaxError(
+  private def invalidArgError(construct: String, index: Int, expected: String)(using Context): ParseError =
+    ParseError.SyntaxError.a(
       s"Invalid argument $index for $construct: expected $expected",
       0,
-      "",
       Some(expected),
       None
     )

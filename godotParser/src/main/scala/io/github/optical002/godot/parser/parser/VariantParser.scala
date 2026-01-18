@@ -26,7 +26,7 @@ object VariantParser {
     }
   }
 
-  def parseTags(tokens: TokenIterator): ParseResult[Vector[Tag]] = {
+  def parseTags(tokens: TokenIterator)(using Context): ParseResult[Vector[Tag]] = {
     @scala.annotation.tailrec
     def collectTags(acc: Vector[Tag]): ParseResult[Vector[Tag]] =
       if (!tokens.hasNext) {
@@ -41,7 +41,7 @@ object VariantParser {
     collectTags(Vector.empty)
   }
 
-  def parseTagWithProperties(tokens: TokenIterator): ParseResult[Tag] =
+  def parseTagWithProperties(tokens: TokenIterator)(using Context): ParseResult[Tag] =
     parseTag(tokens).flatMap { tag =>
       @scala.annotation.tailrec
       def parseProperties(acc: Map[String, Variant]): ParseResult[Tag] =
@@ -57,32 +57,29 @@ object VariantParser {
       parseProperties(Map.empty)
     }
 
-  def parseTag(tokens: TokenIterator): ParseResult[Tag] = {
+  def parseTag(tokens: TokenIterator)(using Context): ParseResult[Tag] = {
     val startLine = tokens.currentLine
 
     if (!tokens.hasNext || tokens.next().tokenType != TokenType.BracketOpen) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected '[' to start tag",
         startLine,
-        "",
         Some("["),
         None
       ))
     } else if (!tokens.hasNext) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected tag name after '['",
         startLine,
-        "",
         Some("identifier"),
         Some("EOF")
       ))
     } else {
       val nameToken = tokens.next()
       nameToken.value.asString.orElse(nameToken.value.asStringName).toRight(
-        ParseError.SyntaxError(
+        ParseError.SyntaxError.a(
           s"Expected identifier for tag name, got ${nameToken.tokenType}",
           nameToken.line,
-          "",
           Some("identifier"),
           Some(nameToken.tokenType.toString)
         )
@@ -90,10 +87,9 @@ object VariantParser {
         @scala.annotation.tailrec
         def parseFields(acc: Map[String, Variant]): ParseResult[Tag] =
           if (!tokens.hasNext) {
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Unexpected EOF in tag",
               tokens.currentLine,
-              "",
               Some("]"),
               Some("EOF")
             ))
@@ -104,19 +100,17 @@ object VariantParser {
             val keyToken = tokens.next()
             keyToken.value.asString.orElse(keyToken.value.asStringName) match {
               case None =>
-                Left(ParseError.SyntaxError(
+                Left(ParseError.SyntaxError.a(
                   s"Expected identifier for field key, got ${keyToken.tokenType}",
                   keyToken.line,
-                  "",
                   Some("identifier"),
                   Some(keyToken.tokenType.toString)
                 ))
               case Some(key) =>
                 if (!tokens.hasNext || tokens.next().tokenType != TokenType.Equal) {
-                  Left(ParseError.SyntaxError(
+                  Left(ParseError.SyntaxError.a(
                     "Expected '=' after field key",
                     tokens.currentLine,
-                    "",
                     Some("="),
                     None
                   ))
@@ -134,12 +128,11 @@ object VariantParser {
     }
   }
 
-  def parsePropertyAssignment(tokens: TokenIterator): ParseResult[(String, Variant)] =
+  def parsePropertyAssignment(tokens: TokenIterator)(using Context): ParseResult[(String, Variant)] =
     if (!tokens.hasNext) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected property key",
         0,
-        "",
         Some("identifier"),
         Some("EOF")
       ))
@@ -147,10 +140,9 @@ object VariantParser {
       val keyToken = tokens.next()
       for {
         key <- keyToken.value.asString.orElse(keyToken.value.asStringName).toRight(
-          ParseError.SyntaxError(
+          ParseError.SyntaxError.a(
             s"Expected identifier for property key, got ${keyToken.tokenType}",
             keyToken.line,
-            "",
             Some("identifier"),
             Some(keyToken.tokenType.toString)
           )
@@ -158,10 +150,9 @@ object VariantParser {
         _ <- if (tokens.hasNext && tokens.next().tokenType == TokenType.Equal) {
           Right(())
         } else {
-          Left(ParseError.SyntaxError(
+          Left(ParseError.SyntaxError.a(
             "Expected '=' after property key",
             tokens.currentLine,
-            "",
             Some("="),
             None
           ))
@@ -170,12 +161,11 @@ object VariantParser {
       } yield (key, value)
     }
 
-  def parseValue(tokens: TokenIterator): ParseResult[Variant] =
+  def parseValue(tokens: TokenIterator)(using Context): ParseResult[Variant] =
     if (!tokens.hasNext) {
-      Left(ParseError.SyntaxError(
+      Left(ParseError.SyntaxError.a(
         "Expected value",
         0,
-        "",
         Some("value"),
         Some("EOF")
       ))
@@ -212,28 +202,25 @@ object VariantParser {
                     if (tokens.hasNext && tokens.peek().tokenType == TokenType.ParenthesisOpen) {
                       ConstructParser.parseConstruct(constructName, tokens)
                     } else {
-                      Left(ParseError.SyntaxError(
+                      Left(ParseError.SyntaxError.a(
                         s"Expected '(' after ObjectValue.$constructName",
                         tokens.currentLine,
-                        "",
                         Some("'('"),
                         Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
                       ))
                     }
                   case None =>
-                    Left(ParseError.SyntaxError(
+                    Left(ParseError.SyntaxError.a(
                       "Invalid construct name after ObjectValue.",
                       tokens.currentLine,
-                      "",
                       Some("construct name"),
                       None
                     ))
                 }
               } else {
-                Left(ParseError.SyntaxError(
+                Left(ParseError.SyntaxError.a(
                   "Expected construct name after ObjectValue.",
                   tokens.currentLine,
-                  "",
                   Some("identifier"),
                   Some(if (tokens.hasNext) tokens.peek().tokenType.toString else "end of input")
                 ))
@@ -246,10 +233,9 @@ object VariantParser {
               Right(Variant.String(name))
             }
           case None =>
-            Left(ParseError.SyntaxError(
+            Left(ParseError.SyntaxError.a(
               "Invalid identifier value",
               idToken.line,
-              "",
               Some("valid identifier"),
               None
             ))
@@ -264,27 +250,25 @@ object VariantParser {
         parseDictionary(tokens)
 
       case other =>
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           s"Unexpected token type for value: $other",
           token.line,
-          "",
           Some("value"),
           Some(other.toString)
         ))
       }
     }
 
-  def parseArray(tokens: TokenIterator): ParseResult[Variant] = {
+  def parseArray(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
     val startLine = tokens.currentLine
     tokens.next() // Consume opening bracket
 
     @scala.annotation.tailrec
     def parseElements(acc: Vector[Variant]): ParseResult[Variant] =
       if (!tokens.hasNext) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           "Unexpected EOF in array",
           startLine,
-          "",
           Some("]"),
           Some("EOF")
         ))
@@ -296,10 +280,9 @@ object VariantParser {
           case Left(err) => Left(err)
           case Right(value) =>
             if (!tokens.hasNext) {
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 "Unexpected EOF after array element",
                 startLine,
-                "",
                 Some("',' or ']'"),
                 Some("EOF")
               ))
@@ -311,10 +294,9 @@ object VariantParser {
                 case TokenType.BracketClose =>
                   parseElements(acc :+ value)
                 case other =>
-                  Left(ParseError.SyntaxError(
+                  Left(ParseError.SyntaxError.a(
                     "Expected ',' or ']' after array element",
                     tokens.peek().line,
-                    "",
                     Some("',' or ']'"),
                     Some(other.toString)
                   ))
@@ -326,17 +308,16 @@ object VariantParser {
     parseElements(Vector.empty)
   }
 
-  def parseDictionary(tokens: TokenIterator): ParseResult[Variant] = {
+  def parseDictionary(tokens: TokenIterator)(using Context): ParseResult[Variant] = {
     val startLine = tokens.currentLine
     tokens.next() // Consume opening brace
 
     @scala.annotation.tailrec
     def parseEntries(acc: Map[String, Variant]): ParseResult[Variant] =
       if (!tokens.hasNext) {
-        Left(ParseError.SyntaxError(
+        Left(ParseError.SyntaxError.a(
           "Unexpected EOF in dictionary",
           startLine,
-          "",
           Some("}"),
           Some("EOF")
         ))
@@ -350,10 +331,9 @@ object VariantParser {
             val key = keyVariant.asString.orElse(keyVariant.asStringName).getOrElse(keyVariant.asKey.toString)
 
             if (!tokens.hasNext || tokens.next().tokenType != TokenType.Colon) {
-              Left(ParseError.SyntaxError(
+              Left(ParseError.SyntaxError.a(
                 "Expected ':' after dictionary key",
                 tokens.currentLine,
-                "",
                 Some(":"),
                 None
               ))
@@ -362,10 +342,9 @@ object VariantParser {
                 case Left(err) => Left(err)
                 case Right(value) =>
                   if (!tokens.hasNext) {
-                    Left(ParseError.SyntaxError(
+                    Left(ParseError.SyntaxError.a(
                       "Unexpected EOF after dictionary value",
                       startLine,
-                      "",
                       Some("',' or '}'"),
                       Some("EOF")
                     ))
@@ -377,10 +356,9 @@ object VariantParser {
                       case TokenType.CurlyBracketClose =>
                         parseEntries(acc + (key -> value))
                       case other =>
-                        Left(ParseError.SyntaxError(
+                        Left(ParseError.SyntaxError.a(
                           "Expected ',' or '}' after dictionary entry",
                           tokens.peek().line,
-                          "",
                           Some("',' or '}'"),
                           Some(other.toString)
                         ))

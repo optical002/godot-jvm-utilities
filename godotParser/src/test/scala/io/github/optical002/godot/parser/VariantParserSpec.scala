@@ -9,6 +9,7 @@ class VariantParserSpec extends FunSuite {
 
   // Helper to parse a value from a string
   def parseValue(input: String): ParseResult[Variant] = {
+    given Context = Context(input)
     val stream = CharStream(input)
     val tokenizer = VariantTokenizer(stream)
 
@@ -32,8 +33,11 @@ class VariantParserSpec extends FunSuite {
 
   // 1. Nil
   test("parse null/nil") {
-    val result = parseValue("null")
-    assertEquals(result, Right(Variant.Nil))
+    val resultNull = parseValue("null")
+    assertEquals(resultNull, Right(Variant.Object(ObjectValue.Null)))
+
+    val resultNil = parseValue("nil")
+    assertEquals(resultNil, Right(Variant.Nil))
   }
 
   // 2. Bool

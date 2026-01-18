@@ -7,19 +7,17 @@ object SceneAssembler {
 
   def assemble(tags: Vector[Tag])(using Context): ParseResult[PackedScene] =
     if (tags.isEmpty) {
-      Left(ParseError.SemanticError(
+      Left(ParseError.SemanticError.a(
         "Empty file - expected [gd_scene] header",
         0,
-        "",
         Map.empty
       ))
     } else {
       val headerTag = tags.head
       if (headerTag.name != "gd_scene") {
-        Left(ParseError.SemanticError(
+        Left(ParseError.SemanticError.a(
           s"Expected [gd_scene] header, got [${headerTag.name}]",
           headerTag.line,
-          "",
           Map("expected" -> "gd_scene", "actual" -> headerTag.name)
         ))
       } else {
@@ -35,18 +33,16 @@ object SceneAssembler {
             case "connection" => TagParsers.parseConnection(tag).map(r => Right(("connection", r)))
             case "editable" =>
               tag.fields.get("path").flatMap(_.asString).toRight(
-                ParseError.SemanticError(
+                ParseError.SemanticError.a(
                   "editable tag missing 'path' field",
                   tag.line,
-                  "",
                   Map.empty
                 )
               ).map(path => Right(("editable", path)))
             case other =>
-              Left(ParseError.SemanticError(
+              Left(ParseError.SemanticError.a(
                 s"Unexpected tag in .tscn file: [$other]",
                 tag.line,
-                "",
                 Map("tag" -> other)
               ))
           }

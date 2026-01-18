@@ -4,12 +4,11 @@ import io.github.optical002.godot.parser.core.*
 import io.github.optical002.godot.parser.model.{ConnectionData, ExtResource, NodeData, SubResource}
 
 object TagParsers {
-  def parseExtResource(tag: Tag): ParseResult[ExtResource] =
+  def parseExtResource(tag: Tag)(using Context): ParseResult[ExtResource] =
     tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
-      ParseError.SemanticError(
+      ParseError.SemanticError.a(
         "ext_resource missing 'id' field",
         tag.line,
-        "",
         Map.empty
       )
     ).map { id =>
@@ -19,12 +18,11 @@ object TagParsers {
       ExtResource(id, resourceType, path, uid)
     }
 
-  def parseSubResource(tag: Tag): ParseResult[SubResource] =
+  def parseSubResource(tag: Tag)(using Context): ParseResult[SubResource] =
     tag.fields.get("id").flatMap(v => v.asString.orElse(v.asInt.map(_.toString))).toRight(
-      ParseError.SemanticError(
+      ParseError.SemanticError.a(
         "sub_resource missing 'id' field",
         tag.line,
-        "",
         Map.empty
       )
     ).map { id =>
@@ -34,12 +32,11 @@ object TagParsers {
       SubResource(id, resourceType, properties)
     }
 
-  def parseNode(tag: Tag): ParseResult[NodeData] = {
+  def parseNode(tag: Tag)(using Context): ParseResult[NodeData] = {
     val nameResult = tag.fields.get("name").flatMap(_.asString).toRight {
-      ParseError.SemanticError(
+      ParseError.SemanticError.a(
         "node missing 'name' field",
         tag.line,
-        "",
         Map.empty
       )
     }
@@ -97,37 +94,33 @@ object TagParsers {
     }
   }
 
-  def parseConnection(tag: Tag): ParseResult[ConnectionData] =
+  def parseConnection(tag: Tag)(using Context): ParseResult[ConnectionData] =
     for {
       signal <- tag.fields.get("signal").flatMap(_.asString).toRight(
-        ParseError.SemanticError(
+        ParseError.SemanticError.a(
           "connection missing 'signal' field",
           tag.line,
-          "",
           Map.empty
         )
       )
         from <- tag.fields.get("from").flatMap(_.asString).toRight(
-          ParseError.SemanticError(
+          ParseError.SemanticError.a(
             "connection missing 'from' field",
             tag.line,
-            "",
             Map.empty
           )
         )
         to <- tag.fields.get("to").flatMap(_.asString).toRight(
-          ParseError.SemanticError(
+          ParseError.SemanticError.a(
             "connection missing 'to' field",
             tag.line,
-            "",
             Map.empty
           )
         )
         method <- tag.fields.get("method").flatMap(_.asString).toRight(
-          ParseError.SemanticError(
+          ParseError.SemanticError.a(
             "connection missing 'method' field",
             tag.line,
-            "",
             Map.empty
           )
         )

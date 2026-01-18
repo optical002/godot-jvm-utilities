@@ -2,7 +2,7 @@ package io.github.optical002.godot.parser.tokenizer
 
 import io.github.optical002.godot.parser.core.*
 
-class VariantTokenizer(stream: CharStream) {
+class VariantTokenizer(stream: CharStream)(using ctx: Context) {
 
   // noinspection AccessorLikeMethodIsEmptyParen
   def getToken(): ParseResult[Token] = {
@@ -32,11 +32,10 @@ class VariantTokenizer(stream: CharStream) {
         case '-' => parseNumber(hasSign = true)
         case c if c.isDigit => stream.saveChar(c); parseNumber(hasSign = false)
         case c if c.isLetter || c == '_' => stream.saveChar(c); parseIdentifier()
-        case c => Left(ParseError.TokenizeError(
+        case c => Left(ParseError.TokenizeError.a(
             s"Unexpected character: '$c' (ASCII ${c.toInt})",
             startLine,
-            startColumn,
-            stream.getContext()
+            startColumn
           ))
       }
 
@@ -111,11 +110,10 @@ class VariantTokenizer(stream: CharStream) {
         Right(Variant.Color(r, g, b, a))
 
       case _ =>
-        Left(ParseError.TokenizeError(
+        Left(ParseError.TokenizeError.a(
           s"Invalid color format: $hex",
           stream.currentLine,
           stream.currentColumn,
-          stream.getContext()
         ))
     }
   }
@@ -123,11 +121,10 @@ class VariantTokenizer(stream: CharStream) {
   private def parseStringName(): ParseResult[(TokenType, Variant)] = {
     val nextChar = stream.getChar()
     if (nextChar != '"') {
-      Left(ParseError.TokenizeError(
+      Left(ParseError.TokenizeError.a(
         s"Expected '\"' after '&', got '$nextChar'",
         stream.currentLine,
         stream.currentColumn,
-        stream.getContext()
       ))
     } else {
       parseString(isStringName = true)
@@ -138,30 +135,27 @@ class VariantTokenizer(stream: CharStream) {
     @scala.annotation.tailrec
     def parseLoop(str: StringBuilder, prevSurrogate: Option[Int]): ParseResult[(TokenType, Variant)] = {
       if (stream.isEof) {
-        Left(ParseError.TokenizeError(
+        Left(ParseError.TokenizeError.a(
           "Unterminated string",
           stream.currentLine,
           stream.currentColumn,
-          stream.getContext()
         ))
       } else {
         val c = stream.getChar()
 
         if (c == 0) {
-          Left(ParseError.TokenizeError(
+          Left(ParseError.TokenizeError.a(
             "Unterminated string (unexpected EOF)",
             stream.currentLine,
-            stream.currentColumn,
-            stream.getContext()
+            stream.currentColumn
           ))
         } else if (c == '"') {
           // End of string
           if (prevSurrogate.isDefined) {
-            Left(ParseError.TokenizeError(
+            Left(ParseError.TokenizeError.a(
               "Invalid UTF-16 sequence: unpaired lead surrogate",
               stream.currentLine,
               stream.currentColumn,
-              stream.getContext()
             ))
           } else {
             val value = str.toString
@@ -174,11 +168,10 @@ class VariantTokenizer(stream: CharStream) {
           // Escape sequence
           val nextChar = stream.getChar()
           if (nextChar == 0) {
-            Left(ParseError.TokenizeError(
+            Left(ParseError.TokenizeError.a(
               "Unterminated string (EOF in escape)",
               stream.currentLine,
-              stream.currentColumn,
-              stream.getContext()
+              stream.currentColumn
             ))
           } else {
             val escaped = nextChar match {
@@ -199,11 +192,10 @@ class VariantTokenizer(stream: CharStream) {
                 if ((codePoint & 0xfffffc00) == 0xd800) {
                   // Lead surrogate
                   if (prevSurrogate.isDefined) {
-                    Left(ParseError.TokenizeError(
+                    Left(ParseError.TokenizeError.a(
                       "Invalid UTF-16 sequence: unpaired lead surrogate",
                       stream.currentLine,
                       stream.currentColumn,
-                      stream.getContext()
                     ))
                   } else {
                     parseLoop(str, Some(codePoint))
@@ -216,21 +208,19 @@ class VariantTokenizer(stream: CharStream) {
                       str.append(combined.toChar)
                       parseLoop(str, None)
                     case None =>
-                      Left(ParseError.TokenizeError(
+                      Left(ParseError.TokenizeError.a(
                         "Invalid UTF-16 sequence: unpaired trail surrogate",
                         stream.currentLine,
                         stream.currentColumn,
-                        stream.getContext()
                       ))
                   }
                 } else {
                   // Regular character
                   if (prevSurrogate.isDefined) {
-                    Left(ParseError.TokenizeError(
+                    Left(ParseError.TokenizeError.a(
                       "Invalid UTF-16 sequence: unpaired lead surrogate",
                       stream.currentLine,
                       stream.currentColumn,
-                      stream.getContext()
                     ))
                   } else {
                     str.append(codePoint.toChar)
@@ -242,11 +232,10 @@ class VariantTokenizer(stream: CharStream) {
         } else {
           // Regular character
           if (prevSurrogate.isDefined) {
-            Left(ParseError.TokenizeError(
+            Left(ParseError.TokenizeError.a(
               "Invalid UTF-16 sequence: unpaired lead surrogate",
               stream.currentLine,
               stream.currentColumn,
-              stream.getContext()
             ))
           } else {
             str.append(c)
@@ -267,11 +256,10 @@ class VariantTokenizer(stream: CharStream) {
       } else {
         val c = stream.getChar()
         if (!isHexDigit(c)) {
-          Left(ParseError.TokenizeError(
+          Left(ParseError.TokenizeError.a(
             s"Invalid hex digit in unicode escape: '$c'",
             stream.currentLine,
             stream.currentColumn,
-            stream.getContext()
           ))
         } else {
           val digit = if (c.isDigit) c - '0'
@@ -334,11 +322,10 @@ class VariantTokenizer(stream: CharStream) {
             numStr.append(c)
             state = NumberState.Exponent
           } else {
-            error = Some(ParseError.TokenizeError(
+            error = Some(ParseError.TokenizeError.a(
               s"Invalid exponent in number",
               stream.currentLine,
               stream.currentColumn,
-              stream.getContext()
             ))
           }
 
@@ -373,11 +360,10 @@ class VariantTokenizer(stream: CharStream) {
               }
             catch {
               case _: NumberFormatException =>
-                Left(ParseError.TokenizeError(
+                Left(ParseError.TokenizeError.a(
                   s"Invalid number format: $numString",
                   stream.currentLine,
                   stream.currentColumn,
-                  stream.getContext()
                 ))
             }
         }
