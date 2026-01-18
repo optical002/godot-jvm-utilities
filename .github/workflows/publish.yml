@@ -32,8 +32,13 @@ jobs:
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
 
-      - name: Publish godot-parser
-        run: sbt "godotParser/publishSigned"
+      - name: Publish godot-parser-jvm
+        run: sbt "godotParserJVM/publishSigned"
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+
+      - name: Publish godot-parser-native
+        run: sbt "godotParserNative/publishSigned"
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
 
